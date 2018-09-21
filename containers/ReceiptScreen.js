@@ -17,7 +17,7 @@ export default class ReceiptScreen extends Component {
   }
 
   _getAccount = async() => {
-    const account = await AsyncStorage.getItem('wallet')
+    const account = await AsyncStorage.getItem('account')
     this.setState({account:account})
   }
 

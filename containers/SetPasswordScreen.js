@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {AsyncStorage, View, TextInput, Text, Button} from 'react-native'
+import {Alert, AsyncStorage, View, TextInput, Text, Button} from 'react-native'
 
 export default class SetPasswordScreen extends Component {
   static navigationOptions = {
@@ -9,19 +9,44 @@ export default class SetPasswordScreen extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      value: null,
+      password: null,
+      passwordValid: false,
       fetching: false,
     }
   }
 
-  _createWallet = async () => {
+  _setPassword(value) {
+    let valid = false
+    if(value && value.length >= 6) {
+      valid = true
+    }
+    this.setState({
+      password: value,
+      passwordValid: valid
+    })
+  }
+
+  _createWallet = () => {
     this.setState({fetching:true})
-    try {
-      let wallet = '0x01c310737e568f590287cee6ffa729ee937ebe4c'
-      await AsyncStorage.setItem('wallet', wallet)
+    console.log(this.state.password)
+    web3.eth.personal.newAccount(this.state.password).then((account)=>{
+      console.log(account)
+      this._storeAccount(account)
       this.props.navigation.navigate('App')
-    } catch(error) {
-      console.log('error', error)
+    }).catch((error)=>Alert.alert(error.toString()))
+  }
+
+  _storeAccount = async(account) => {
+    await AsyncStorage.setItem('account', account)
+  }
+
+  _renderButton = () => {
+    if(!this.state.passwordValid) {
+      return <Button color='#212b66' title='下一步' disabled onPress={()=>null} />
+    }else if(this.state.fetching) {
+      return <Button color='#212b66' title='创建中...' disabled onPress={()=>null} />
+    }else{
+      return <Button color='#212b66' title='下一步' onPress={this._createWallet} />
     }
   }
 
@@ -31,24 +56,14 @@ export default class SetPasswordScreen extends Component {
       <View style={{padding:30}}>
         <Text style={{fontWeight:'bold',color:'#212b66',marginBottom:15}}>
           请设置交易密码</Text>
-        <View style={{borderWidth:1,borderColor:'#b2b2b2',marginBottom:50}}>
+        <View style={{borderWidth:1,borderColor:'#b2b2b2',paddingVertical:10,paddingHorizontal:10,marginBottom:50}}>
           <TextInput
+            secureTextEntry={true}
             value={this.state.value}
-            onChangeText={(value) => this.setState({value:value})}
+            onChangeText={(value) => this._setPassword(value)}
             keyboardType='number-pad' />
         </View>
-        {this.state.fetching ? (
-          <Button
-            color='#212b66'
-            title='创建中...'
-            onPress={()=>null}
-            disabled />
-        ) : (
-          <Button
-            color='#212b66'
-            onPress={this._createWallet}
-            title='下一步' />
-          )}
+        {this._renderButton()}
       </View>
     )
   }

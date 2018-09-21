@@ -8,8 +8,8 @@ export default class AuthLoadingScreen extends Component {
   }
 
   _bootstrapAsync = async () => {
-    const wallet = await AsyncStorage.getItem('wallet')
-    this.props.navigation.navigate(wallet ? 'App' : 'Auth')
+    const account = await AsyncStorage.getItem('account')
+    this.props.navigation.navigate(account ? 'App' : 'Auth')
 
   }
 

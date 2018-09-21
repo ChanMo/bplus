@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import {AsyncStorage, Alert, StatusBar, Dimensions, ImageBackground, Image, FlatList, Button, View, Text, TouchableOpacity} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 
+global.web3.eth.getAccounts().then(console.log)
+
 const {width} = Dimensions.get('window')
 const wei = 1000000000000000000
 
@@ -26,9 +28,10 @@ export default class WalletScreen extends Component {
   }
 
   _getAccount = async() => {
-    const account = await AsyncStorage.getItem('wallet')
+    const account = await AsyncStorage.getItem('account')
     this.setState({account:account})
-    this._getBalance()
+    web3.eth.getBalance(account).then((res)=>this.setState({balance:web3.utils.fromWei(res, 'ether')})).catch((error)=>Alert.alert(error.toString()))
+    //this._getBalance()
   }
 
   _getBalance = () => {

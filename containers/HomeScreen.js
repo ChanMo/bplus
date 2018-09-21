@@ -9,6 +9,15 @@ import WalletScreen from './WalletScreen'
 import AssetScreen from './AssetScreen'
 import UserScreen from './UserScreen'
 
+//var Web3 = require('web3')
+//var web3 = new Web3(new Web3.providers.HttpProvider('http://47.94.206.167:8545'))
+//console.log(web3.eth.gasPrice)
+//
+//web3.eth.getProtocolVersion().then(console.log)
+//web3.eth.getAccounts().then((res)=>console.log(res))
+//setInterval(()=>console.log(web3.currentProvider), 5000)
+
+
 const Footer = createBottomTabNavigator({
   //Asset: AssetScreen,
   Wallet: WalletScreen,
@@ -55,11 +64,11 @@ export default class HomeScreen extends Component {
     header: null,
     title: 'B+',
     headerRight: (
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={()=>navigation.navigate('Setting')}>
-        <Icon 
-          name='ios-menu' 
-          size={24} 
+        <Icon
+          name='ios-menu'
+          size={24}
           style={{marginRight:15}} />
       </TouchableOpacity>
     )
@@ -68,9 +77,9 @@ export default class HomeScreen extends Component {
   render() {
     return (
       <View style={{flex:1}}>
-        <StatusBar 
-          barStyle='light-content' 
-          translucent={true} 
+        <StatusBar
+          barStyle='light-content'
+          translucent={true}
           backgroundColor='transparent' />
         <Footer navigation={this.props.navigation} />
       </View>
