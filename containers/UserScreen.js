@@ -15,7 +15,7 @@ const data = [
 export default class UserScreen extends Component {
 
   _renderHeader = () => (
-    <ImageBackground 
+    <ImageBackground
       style={{width:'100%',height:74}}
       source={require('../images/wallet-bg.png')}>
       <View style={{flexDirection:'row',marginTop:20,alignItems:'center',justifyContent:'center',height:54}}>
@@ -25,7 +25,7 @@ export default class UserScreen extends Component {
   )
 
   _renderItem = ({item}) => (
-    <TouchableOpacity onPress={()=>item.path ? this.props.navigation.navigate(item.path, item.param) : null} 
+    <TouchableOpacity onPress={()=>item.path ? this.props.navigation.navigate(item.path, item.param) : null}
       style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:15,paddingVertical:10,backgroundColor:'white',marginBottom:2}}>
       <View style={{flexDirection:'row',alignItems:'center'}}>
         <Image source={item.icon} style={{width:32,height:32,marginRight:10}} />
@@ -49,18 +49,12 @@ export default class UserScreen extends Component {
     return (
       <View style={{flex:1,backgroundColor:'rgb(245,243,251)'}}>
         {this._renderHeader()}
-        <FlatList 
+        <FlatList
           style={{flex:1}}
           data={data}
           renderItem={this._renderItem}
           keyExtractor={this._keyExtractor}
         />
-        <View style={{padding:20}}>
-          <Button 
-            onPress={this._clear}
-            title='退出(测试)' 
-            color='#212b66' />
-        </View>
       </View>
     )
   }

@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {WebView, View, Text} from 'react-native'
 
-const url = 'http://www.mocapital.top/bplus/bplus.html'
+const url = 'http://bplus.mocapital.top'
 
 export default class FinanceScreen extends Component {
   static navigationOptions = {
@@ -10,7 +10,8 @@ export default class FinanceScreen extends Component {
 
   render() {
     return (
-      <WebView 
+      <WebView
+        startInLoadingState={true}
         source={{uri:url}} />
     )
   }

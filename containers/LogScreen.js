@@ -1,15 +1,11 @@
 import React, {Component} from 'react'
-import {Alert, AsyncStorage, StatusBar, FlatList, View, Text} from 'react-native'
+import {RefreshControl, ActivityIndicator, Alert, AsyncStorage, StatusBar, FlatList, View, Text} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 import colors from '../colors'
+import {formatTime} from '../utils'
 
 const apikey = 'G1T2IX1V1J157RINVS4H1R7QJ3811Z4D6W'
 const url = 'https://api.etherscan.io/api'
-
-function formatTime(timestamp) {
-  let date = new Date(parseInt(timestamp)*1000)
-  return date.getFullYear() + '/' + (date.getMonth()+1) + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
-}
 
 export default class LogScreen extends Component {
   static navigationOptions = {
@@ -20,7 +16,9 @@ export default class LogScreen extends Component {
     super(props)
     this.state = {
       account: null,
-      logs: []
+      logs: [],
+      fetching: true,
+      refreshing: false,
     }
   }
 
@@ -34,6 +32,11 @@ export default class LogScreen extends Component {
     this._fetchLog()
   }
 
+  _onRefresh = () => {
+    this.setState({refreching:true})
+    this._fetchLog().then(()=>this.setState({refreshing:false}))
+  }
+
   _fetchLog = () => {
     let curl = url + `?module=account&action=txlist&address=${this.state.account}&startblock=0&endblock=99999999&sort=asc&apikey=${apikey}`
     console.log(curl)
@@ -45,27 +48,12 @@ export default class LogScreen extends Component {
         } else {
           Alert.alert(responseJson.message)
         }
+        this.setState({fetching:false})
       })
-      .catch((error) => Alert.alert(error.toString()))
-    //let url = 'http://47.94.206.167:8545'
-    //return fetch(url, {
-    //  method: 'POST',
-    //  headers: {
-    //    'Content-Type': 'application/json'
-    //  },
-    //  body: JSON.stringify({
-    //    jsonrpc: '2.0',
-    //    method: 'eth_getLogs',
-    //    params: [{
-    //      fromBlock: 'latest'
-    //    }],
-    //    id: 1
-    //  })
-    //}).then((response) => response.json())
-    //  .then((responseJson) => this.setState({
-    //    logs: responseJson.result
-    //  }))
-    //  .catch((error) => console.log('节点异常'))
+      .catch((error) => {
+        this.setState({fetching:false})
+        Alert.alert(error.toString())
+      })
   }
 
   _filterShort(str) {
@@ -96,12 +84,21 @@ export default class LogScreen extends Component {
     return (
       <View style={{flex:1}}>
         <StatusBar translucent={false} barStyle='dark-content' />
-        <FlatList
-          data={this.state.logs}
-          keyExtractor={this._keyExtractor}
-          renderItem={this._renderItem}
-          ListEmptyComponent={this._renderEmpty}
-        />
+        {!this.state.fetching ? (
+          <FlatList
+            data={this.state.logs}
+            keyExtractor={this._keyExtractor}
+            renderItem={this._renderItem}
+            refreshControl={
+            <RefreshControl
+              onRefresh={this._onRefresh}
+              refreshing={this.state.refreshing} />
+            }
+            ListEmptyComponent={this._renderEmpty}
+          />
+        ) : (
+          <ActivityIndicator style={{marginTop:50}} />
+        )}
       </View>
     )
   }

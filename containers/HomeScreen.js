@@ -21,7 +21,7 @@ import UserScreen from './UserScreen'
 const Footer = createBottomTabNavigator({
   //Asset: AssetScreen,
   Wallet: WalletScreen,
-  //Finance: FinanceScreen,
+  Finance: FinanceScreen,
   User: UserScreen,
 }, {
   initialRouteName: 'Wallet',
@@ -48,6 +48,8 @@ const Footer = createBottomTabNavigator({
         label = '资产'
       } else if (routeName === 'Wallet') {
         label = '钱包'
+      } else if (routeName === 'Finance') {
+        label = '理财'
       } else {
         label = '我的'
       }

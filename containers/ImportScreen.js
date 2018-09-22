@@ -30,9 +30,9 @@ export default class ImportScreen extends Component {
     const result = web3.eth.accounts.privateKeyToAccount(this.state.keystore)
     if(result && result.address) {
       console.log(result)
-      let test = '0x01c310737e568f590287cee6ffa729ee937ebe4c'
-      //this._storeAccount(result.address)
-      this._storeAccount(test)
+      //let test = '0x01c310737e568f590287cee6ffa729ee937ebe4c'
+      //this._storeAccount(test)
+      this._storeAccount(result.address)
       this.setState({fetching:false})
       this.props.navigation.navigate('App')
     } else {
