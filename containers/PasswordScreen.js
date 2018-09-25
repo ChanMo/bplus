@@ -34,8 +34,12 @@ export default class PasswordScreen extends Component {
     })
   }
 
+  _checkPassword = () => {
+    let password = this.state.password
+  }
+
   _renderHeader = () => (
-    <View style={{height:44,backgroundColor:'white',alignItems:'center',flexDirection:'row',elevation:3,marginTop:20}}>
+    <View style={{height:44,backgroundColor:'white',alignItems:'center',flexDirection:'row',elevation:3,marginTop:20,shadowColor:'grey',shadowOffset:{width:0,height:2,shadowOpacity:1,shadowRadius:1}}}>
       <TouchableOpacity
         style={{flex:1.7,paddingLeft:15}}
         onPress={()=>this.props.navigation.goBack()}>
@@ -53,14 +57,14 @@ export default class PasswordScreen extends Component {
     if(!this.state.valid) {
       return <Button title='确定' disabled onPress={()=>null} />
     } else {
-      return <Button title='确定' />
+      return <Button title='确定' onPress={this._checkPassword}/>
     }
   }
 
   render() {
     const {navigate, goBack} = this.props.navigation
     return (
-      <View style={{flex:1}}>
+      <View style={{flex:1,backgroundColor:'white'}}>
         {this._renderHeader()}
         <View style={{flex:1,padding:30}}>
           <Text style={styles.label}>密码</Text>
@@ -70,18 +74,7 @@ export default class PasswordScreen extends Component {
               onChangeText={(value)=>this._setPassword(value)}
               height={40} />
           </View>
-          {this.state.fetching ? (
-            <Button
-              title='验证中...'
-              color={colors.primary}
-              disabled
-              onPress={()=>null} />
-          ) : (
-            <Button
-              onPress={this._importWallet}
-              title='确定'
-              color={colors.primary}  />
-          )}
+          {this._renderButton()}
         </View>
       </View>
     )

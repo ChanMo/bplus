@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {AsyncStorage, StatusBar, StyleSheet, View, TextInput, Text, Button} from 'react-native'
+import {Alert, Modal, TouchableOpacity, AsyncStorage, StatusBar, StyleSheet, View, TextInput, Text, Button} from 'react-native'
 import colors from '../colors'
 
 export default class TransferScreen extends Component {
@@ -16,12 +16,20 @@ export default class TransferScreen extends Component {
       value: 0,
       toValid: false,
       valueValid: false,
-      fetching: false
+      fetching: false,
+      modalVisible: false,
+      password: null,
+      gasPrice: "0",
     }
   }
 
   componentDidMount() {
+    web3.eth.getGasPrice().then((value)=>this.setState({gasPrice:value}))
     this._getAccount()
+  }
+
+  _onClose = () => {
+    this.setState({modalVisible:false})
   }
 
   _getAccount = async() => {
@@ -52,6 +60,27 @@ export default class TransferScreen extends Component {
     })
   }
 
+  _submit = () => {
+    //web3.eth.personal.unlockAccount(this.state.account, this.state.password, 600).then(console.log).catch((error)=>Alert.alert(error.toString()))
+    //return
+    let data = {
+      nonce: 1,
+      from: this.state.account,
+      gasPrice: this.state.gasPrice,
+      gas: "21000",
+      //to: this.state.to,
+      to: "0xA32917f203089E11a4F8cff1535498BA3E3E7c86",
+      value: web3.utils.toWei(this.state.value),
+      data: ""
+    }
+    console.log(data)
+    console.log(this.state.password)
+
+    web3.eth.signTransaction(data, this.state.password)
+      .then((res)=>web3.eth.sendSignedTransaction(res.raw).on('receipt', console.log))
+      .catch((error)=>Alert.alert(error.toString()))
+  }
+
   _renderButton = () => {
     if(!this.state.toValid || !this.state.valueValid) {
       console.log('valid error')
@@ -61,8 +90,10 @@ export default class TransferScreen extends Component {
       return <Button title='处理中...' color={colors.primary} disabled
         onPress={()=>null} />
     }else {
+      //return <Button title='下一步' color={colors.primary}
+      //  onPress={()=>this.props.navigation.navigate('Password')} />
       return <Button title='下一步' color={colors.primary}
-        onPress={()=>this.props.navigation.navigate('Password')} />
+        onPress={()=>this.setState({modalVisible:true})} />
     }
   }
 
@@ -70,6 +101,27 @@ export default class TransferScreen extends Component {
     return (
       <View style={{flex:1,padding:30}}>
         <StatusBar translucent={false} barStyle='dark-content' />
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.modalVisible}
+          onRequestClose={()=>null}>
+          <TouchableOpacity
+            onPress={this._onClose}
+            style={{flex:1,backgroundColor:'rgba(0,0,0,0.3)'}}>
+          </TouchableOpacity>
+          <View style={{padding:20}}>
+            <Text style={styles.label}>密码</Text>
+            <View style={styles.input}>
+              <TextInput
+                secureTextEntry={true}
+                value={this.state.password}
+                onChangeText={(value)=>this.setState({password:value})}
+                height={40} />
+            </View>
+            <Button title='确定' onPress={this._submit} />
+          </View>
+        </Modal>
         <View style={styles.form}>
           <Text style={styles.label}>钱包地址</Text>
           <View style={styles.input}>
