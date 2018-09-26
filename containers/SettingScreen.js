@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {View, Text} from 'react-native'
+import {AsyncStorage, Button, View, Text} from 'react-native'
 import {ListItem} from 'react-native-elements'
 
 const list = [
@@ -12,16 +12,18 @@ export default class SettingScreen extends Component {
     title: '设置'
   }
 
+  _clear = async() => {
+    try {
+      await AsyncStorage.clear()
+      this.props.navigation.navigate('Auth')
+    } catch(error) {
+    }
+  }
+
   render() {
     return (
       <View style={{flex:1,paddingTop:15}}>
-        {list.map((item,i) => (
-          <ListItem 
-            key={i} 
-            containerStyle={{marginBottom:1}}
-            chevron
-            title={item.name} />
-        ))}
+        <Button title='删除钱包' color='#212b66' onPress={this._clear} />
       </View>
     )
   }

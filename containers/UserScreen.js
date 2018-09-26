@@ -6,7 +6,7 @@ import api from '../api'
 const data = [
   {name:'我的理财', icon:require('../images/user-asset.png')},
   {name:'钱包工具', icon:require('../images/user-tools.png')},
-  {name:'系统设置', icon:require('../images/user-setting.png')},
+  {name:'系统设置', icon:require('../images/user-setting.png'), path:'Setting'},
   {name:'加入社群', icon:require('../images/user-us.png'), path:'Group'},
   {name:'帮助中心', icon:require('../images/user-help.png'), path:'Web', param:{title:'帮助中心',link:api.help}},
   {name:'关于我们', icon:require('../images/user-about.png'), path:'About'},
