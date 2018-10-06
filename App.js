@@ -13,6 +13,7 @@ import LogScreen from './containers/LogScreen'
 import SetPasswordScreen from './containers/SetPasswordScreen'
 import ImportScreen from './containers/ImportScreen'
 import ImportSeedScreen from './containers/ImportSeedScreen'
+import ExportScreen from './containers/ExportScreen'
 import AuthLoadingScreen from './containers/AuthLoadingScreen'
 import PasswordScreen from './containers/PasswordScreen'
 import TransferScreen from './containers/TransferScreen'
@@ -29,7 +30,8 @@ const AppStack = createStackNavigator({
   Web: WebScreen,
   Transfer: TransferScreen,
   Receipt: ReceiptScreen,
-  Coin: CoinScreen
+  Coin: CoinScreen,
+  Export: ExportScreen
 }, {
   initialRouteName: 'Home'
 })

@@ -46,7 +46,7 @@ export default class LogScreen extends Component {
         if(responseJson.status == '1') {
           this.setState({logs:responseJson.result})
         } else {
-          Alert.alert(responseJson.message)
+          //Alert.alert(responseJson.message)
         }
         this.setState({fetching:false})
       })
