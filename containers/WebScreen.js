@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import {StatusBar, Platform, View, Text, TouchableOpacity, BackHandler, StyleSheet, WebView} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
-
 const WEBVIEW_REF = 'WEBVIEW_REF'
 
 export default class WebScreen extends Component {
@@ -58,9 +57,9 @@ export default class WebScreen extends Component {
             <Icon name='arrow-left' size={24} color='rgb(68,68,68)' />
           </TouchableOpacity>
           <TouchableOpacity onPress={()=>goBack()} style={{marginLeft:15}}>
-            <Icon 
-              name='x' 
-              size={24} 
+            <Icon
+              name='x'
+              size={24}
               color='rgb(68,68,68)'/>
           </TouchableOpacity>
         </View>

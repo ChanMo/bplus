@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Image, StatusBar, View, Text, TouchableOpacity} from 'react-native'
+import {AsyncStorage, Image, StatusBar, View, Text, TouchableOpacity} from 'react-native'
 import { createBottomTabNavigator } from 'react-navigation'
 import Icon from 'react-native-vector-icons/Ionicons'
 
@@ -75,6 +75,36 @@ export default class HomeScreen extends Component {
       </TouchableOpacity>
     )
   })
+
+  componentDidMount() {
+    this._fetchCoins()
+  }
+
+  _fetchCoins = async() => {
+    const old = await AsyncStorage.getItem('coins')
+    if(old) {
+      return
+    }
+    const coins = ['ETH', 'EOS', 'BAT', 'USDT']
+    let coinstr = coins.toString()
+    console.log(coinstr)
+    let url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?symbol=' + coinstr
+    return fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'X-CMC_PRO_API_KEY': 'afa301a7-3f5d-4694-b87c-eb48e6e07cc8'
+      }
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        //console.log(responseJson)
+        let jsonstring = JSON.stringify(responseJson.data)
+        console.log(jsonstring)
+        AsyncStorage.setItem('coins', jsonstring)
+      })
+      .catch((error)=>console.log(error.toString()))
+  }
 
   render() {
     return (

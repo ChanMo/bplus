@@ -1,12 +1,12 @@
 import React, {Component} from 'react'
-import {StyleSheet, RefreshControl, ActivityIndicator, ScrollView, AsyncStorage, Alert, StatusBar, Dimensions, ImageBackground, Image, FlatList, Button, View, Text, TouchableOpacity} from 'react-native'
+import {DeviceEventEmitter, StyleSheet, RefreshControl, ActivityIndicator, ScrollView, AsyncStorage, Alert, StatusBar, Dimensions, ImageBackground, Image, FlatList, Button, View, Text, TouchableOpacity} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 import {formatBalance} from '../utils'
+import tokens from '../tokens'
 
-global.web3.eth.getAccounts().then(console.log)
+//global.web3.eth.getAccounts().then(console.log)
 
 const {width} = Dimensions.get('window')
-const wei = 1000000000000000000
 
 export default class WalletScreen extends Component {
   static navigationOptions = {
@@ -20,23 +20,75 @@ export default class WalletScreen extends Component {
       balance: '0.0000',
       value: 0.00,
       price: 0,
-      coins: [
-        //{name:'BTC', code: 'btc', balance:'0.0000',value:'0.00'},
-        {name:'ETH', code: 'eth', balance:'0.0000',value:'0.00'},
-        //{name:'EOS', code: 'eos', balance:'0.0000',value:'0.00'}
-      ],
+      coins: [],
+      coins_price: [],
       refreshing: false
     }
   }
 
   componentDidMount() {
+    DeviceEventEmitter.addListener('mycoins_changed', (e)=>this._getCoins())
+    this._getCoins()
     this._getAccount()
     this._getPrice()
+    this._getTokenBalance()
+  }
+
+  _getCoins = async() => {
+    const coins = await AsyncStorage.getItem('mycoins')
+    console.log(coins)
+    this.setState({coins:JSON.parse(coins)})
+    this._getPrice()
+  }
+
+  _getPrice = async() => {
+    const prices = await AsyncStorage.getItem('coins_price')
+    if(prices) {
+      this.setState({coins_price: JSON.parse(prices)})
+    } else {
+      this._fetchPrice()
+    }
+    console.log(this.state.coins_price)
+  }
+
+  _getTokenBalance = () => {
+    this.state.coins.map((item) => {
+      console.log('b+', item)
+      if(item !== 'ETH') {
+        this._getTokenBalanceItem(item)
+      }
+    })
+  }
+
+  _getTokenBalanceItem = (token) => {
+    console.log('b+', token)
+    //let contract = new web3.eth.Contract()
+  }
+
+  _fetchPrice = () => {
+    let coins = this.state.coins.toString()
+    let url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&convert=CNY`
+    console.log(url)
+    return fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'X-CMC_PRO_API_KEY': 'afa301a7-3f5d-4694-b87c-eb48e6e07cc8'
+      }
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log(responseJson.data)
+        AsyncStorage.setItem('coins_price', JSON.stringify(responseJson.data))
+        this.setState({coins_price: responseJson.data})
+      })
+      .catch((error)=>console.log('api error'))
+
   }
 
   _onRefresh = () => {
     this.setState({refreshing:true})
-    this._getPrice()
+    //this._getPrice()
     this._getBalance().then(()=>this.setState({refreshing:false}))
 
   }
@@ -52,24 +104,6 @@ export default class WalletScreen extends Component {
       .then((res)=>web3.utils.fromWei(res, 'ether'))
       .then((balance)=>this.setState({balance:balance}))
       .catch((error)=>Alert.alert(error.toString()))
-  }
-
-  _getPrice = () => {
-    let url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ETH&convert=CNY'
-    return fetch(url, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'X-CMC_PRO_API_KEY': 'afa301a7-3f5d-4694-b87c-eb48e6e07cc8'
-      }
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.log(responseJson.data.ETH)
-        this.setState({price:responseJson.data.ETH.quote.CNY.price})
-      })
-      .catch((error)=>console.log('api error'))
-    //.catch((error) => Alert.alert(error.toString()))
   }
 
   _renderHeader = () => (
@@ -119,7 +153,7 @@ export default class WalletScreen extends Component {
   _renderItem = ({item}) => (
     <TouchableOpacity onPress={()=>this.props.navigation.navigate('Log')}>
       <View style={styles.item}>
-        <Text style={{color:'rgb(78,78,78)'}}>{item.name}</Text>
+        <Text style={{color:'rgb(78,78,78)'}}>{item.toString()}</Text>
         <View style={{alignItems:'flex-end'}}>
           <Text style={{color:'rgb(46,46,46)'}}>{this.state.balance}</Text>
           <Text style={{fontSize:12,color:'rgb(184,186,206)'}}>
@@ -161,6 +195,11 @@ export default class WalletScreen extends Component {
             }>
             {this._renderMain()}
             {this._renderToken()}
+            <TouchableOpacity
+              onPress={()=>this.props.navigation.navigate('CoinList')}
+              style={{alignItems:'center',paddingVertical:10}}>
+              <Text>管理币种</Text>
+            </TouchableOpacity>
           </ScrollView>
         </ImageBackground>
       </View>

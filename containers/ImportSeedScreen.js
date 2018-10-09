@@ -41,7 +41,7 @@ export default class ImportSeedScreen extends Component {
     console.log(addr)
     const address = ethUtil.toChecksumAddress(addr);
     console.log(address)
-    AsyncStorage.multiSet([['mnemonic', mnemonic], ['account', address]])
+    AsyncStorage.multiSet([['mnemonic', mnemonic], ['account', address], ['mycoins', JSON.stringify(['ETH'])]])
     this.props.navigation.navigate('App')
   }
 

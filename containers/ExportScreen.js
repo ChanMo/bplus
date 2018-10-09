@@ -14,10 +14,8 @@ export default class ExportScreen extends Component {
   }
 
   _getMnemonic = async() => {
-    try {
-      const mnemonic = await AsyncStorage.getItem('mnemonic')
-      this.setState({mnemonic: mnemonic})
-    }
+    const mnemonic = await AsyncStorage.getItem('mnemonic')
+    this.setState({mnemonic: mnemonic})
   }
 
   render() {
@@ -25,7 +23,7 @@ export default class ExportScreen extends Component {
       <View>
         <Text>重要提示:拥有钱包备份就能完全控制钱包资产</Text>
         <Button title='导出' onPress={this._getMnemonic} />
-        {this.state.result && <Text>{mnemonic}</Text>}
+        {this.state.mnemonic && <Text>{this.state.mnemonic}</Text>}
       </View>
     )
   }

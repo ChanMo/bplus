@@ -19,6 +19,7 @@ import PasswordScreen from './containers/PasswordScreen'
 import TransferScreen from './containers/TransferScreen'
 import ReceiptScreen from './containers/ReceiptScreen'
 import CoinScreen from './containers/CoinScreen'
+import CoinListScreen from './containers/CoinListScreen'
 
 const AppStack = createStackNavigator({
   Home: HomeScreen,
@@ -31,7 +32,8 @@ const AppStack = createStackNavigator({
   Transfer: TransferScreen,
   Receipt: ReceiptScreen,
   Coin: CoinScreen,
-  Export: ExportScreen
+  Export: ExportScreen,
+  CoinList: CoinListScreen,
 }, {
   initialRouteName: 'Home'
 })
