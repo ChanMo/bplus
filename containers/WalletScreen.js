@@ -51,18 +51,23 @@ export default class WalletScreen extends Component {
     console.log(this.state.coins_price)
   }
 
+  /** 获取所有token金额 **/
   _getTokenBalance = () => {
     this.state.coins.map((item) => {
       console.log('b+', item)
       if(item !== 'ETH') {
+        /** 获取单个token金额 **/
         this._getTokenBalanceItem(item)
       }
     })
   }
 
+  /** 获取单个token金额 **/
   _getTokenBalanceItem = (token) => {
     console.log('b+', token)
-    //let contract = new web3.eth.Contract()
+    let tokenData = tokens[token]
+    let contract = new web3.eth.Contract(JSON.parse(tokenData.abi), tokenData.address)
+    contract.methods.balanceOf(this.state.account).call().then((res) => console.log('b+', res))
   }
 
   _fetchPrice = () => {
