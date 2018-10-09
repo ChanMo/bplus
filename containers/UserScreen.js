@@ -1,7 +1,9 @@
 import React, {Component} from 'react'
-import {AsyncStorage, Button, ImageBackground, StatusBar, FlatList, Image, TouchableOpacity, View, Text} from 'react-native'
+import {AsyncStorage, Button, ImageBackground, StatusBar, FlatList, Image, TouchableOpacity, View, Text,Dimensions} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 import api from '../api'
+
+const {width} = Dimensions.get('window')
 
 const data = [
   {name:'我的理财', icon:require('../images/user-asset.png')},
@@ -17,7 +19,8 @@ export default class UserScreen extends Component {
 
   _renderHeader = () => (
     <ImageBackground
-      style={{width:'100%',height:74}}
+      style={{width:'100%',height:74,overflow:'hidden'}}
+      imageStyle={{width:width,height:width*5/6}}
       source={require('../images/wallet-bg.png')}>
       <View style={{flexDirection:'row',marginTop:20,alignItems:'center',justifyContent:'center',height:54}}>
         <Text style={{fontSize:16,alignSelf:'center',color:'white'}}>我的</Text>
