@@ -1,10 +1,12 @@
-const domain = 'http://www.mocapital.top/'
+const domain = 'http://bplus.mocapital.top/#/'
+// const domain = 'http://192.168.0.148:8080/#/'
 
 const api = {
-  finance: domain + 'bplus/bplus.html',
-  help: 'http://bplus.mocapital.top/#/help',
-  word: domain + 'bplus/word.html',
-  forget: domain + 'bplus/forget.html'
+  finance: domain + '',
+  income: domain + 'income',
+  help: domain + 'help',
+  word: domain + 'word',
+  forget: domain + 'forget'
 }
 
 export default api

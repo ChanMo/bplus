@@ -6,13 +6,12 @@ import api from '../api'
 const {width} = Dimensions.get('window')
 
 const data = [
-  {name:'我的理财', icon:require('../images/user-asset.png')},
-  //{name:'钱包工具', icon:require('../images/user-tools.png')},
-  {name:'导出钱包', icon:require('../images/user-tools.png'), path:'Export'},
+  {name:'我的理财', icon:require('../images/user-asset.png'), path:'Income'},
+  {name:'钱包工具', icon:require('../images/user-tools.png'), path:'ToolList'},
+  // {name:'系统设置', icon:require('../images/user-setting.png'), path:'Setting'},
   {name:'加入社群', icon:require('../images/user-us.png'), path:'Group'},
   {name:'帮助中心', icon:require('../images/user-help.png'), path:'Web', param:{title:'帮助中心',link:api.help}},
   {name:'关于我们', icon:require('../images/user-about.png'), path:'About'},
-  {name:'系统设置', icon:require('../images/user-setting.png'), path:'Setting'},
 ]
 
 export default class UserScreen extends Component {
@@ -30,7 +29,7 @@ export default class UserScreen extends Component {
 
   _renderItem = ({item}) => (
     <TouchableOpacity onPress={()=>item.path ? this.props.navigation.navigate(item.path, item.param) : null}
-      style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:15,paddingVertical:10,backgroundColor:'white',marginBottom:2}}>
+      style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:15,paddingVertical:10,backgroundColor:'white',marginTop:2}}>
       <View style={{flexDirection:'row',alignItems:'center'}}>
         <Image source={item.icon} style={{width:32,height:32,marginRight:10}} />
         <Text style={{color:'rgb(68,68,68)'}}>{item.name}</Text>

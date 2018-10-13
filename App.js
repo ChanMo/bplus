@@ -20,6 +20,20 @@ import TransferScreen from './containers/TransferScreen'
 import ReceiptScreen from './containers/ReceiptScreen'
 import CoinScreen from './containers/CoinScreen'
 import CoinListScreen from './containers/CoinListScreen'
+//mxh
+//我的
+import IncomeScreen from './containers/IncomeScreen'
+import ToolListScreen from './containers/ToolListScreen'
+import ChangePasswordScreen from './containers/ChangePasswordScreen'
+
+import BackupsScreen from './containers/BackupsScreen'
+import CopyWordScreen from './containers/CopyWordScreen'
+import ValidateWordScreen from './containers/ValidateWordScreen'
+import DelectHintScreen from './containers/DelectHintScreen'
+import DelectWalletScreen from './containers/DelectWalletScreen'
+
+import DerivedKeyScreen from './containers/DerivedKeyScreen'
+import DetailScreen from './containers/DetailScreen'
 
 const AppStack = createStackNavigator({
   Home: HomeScreen,
@@ -34,12 +48,23 @@ const AppStack = createStackNavigator({
   Coin: CoinScreen,
   Export: ExportScreen,
   CoinList: CoinListScreen,
+  Income: IncomeScreen,
+  ToolList: ToolListScreen,
+  Backups: BackupsScreen,
+  CopyWord: CopyWordScreen,
+  ValidateWord: ValidateWordScreen,
+  DelectHint: DelectHintScreen,
+  DelectWallet:DelectWalletScreen,
+  DerivedKey: DerivedKeyScreen,
+  Detail: DetailScreen,
+  ChangePassword: ChangePasswordScreen
 }, {
   initialRouteName: 'Home'
 })
 
 const AuthStack = createStackNavigator({
   Welcome: WelcomeScreen,
+  // Welcome: DetailScreen,
   SetPassword: SetPasswordScreen,
   Import: ImportScreen,
   ImportSeed: ImportSeedScreen

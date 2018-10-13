@@ -119,7 +119,7 @@ export default class WalletScreen extends Component {
   )
 
   _renderMain = () => (
-    <View style={styles.main}>
+    <ImageBackground source={require('../images/log-bg.png')} style={styles.main}>
       <View style={{paddingHorizontal:20,paddingVertical:30}}>
         <Text style={{fontWeight:'600',fontSize:12,color:'#4a4a4a',marginBottom:10}}>
           我的资产</Text>
@@ -152,7 +152,7 @@ export default class WalletScreen extends Component {
           <Text>收 款</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ImageBackground>
   )
 
   _renderItem = ({item}) => (
@@ -230,6 +230,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: 'white',
     borderRadius: 5,
+    overflow:"hidden"
   },
   mainAction: {
     flex:1,

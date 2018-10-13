@@ -1,5 +1,6 @@
 import React,{Component} from 'react'
-import {AsyncStorage, Alert, View, TextInput, Button, Text} from 'react-native'
+import {AsyncStorage, Alert, View, TextInput,TouchableOpacity,ImageBackground, Button, Text} from 'react-native'
+import api from '../api'
 
 var bip39 = require('bip39')
 var HDKey = require('hdkey')
@@ -47,17 +48,31 @@ export default class ImportSeedScreen extends Component {
 
   render() {
     return (
-      <View>
-        <View style={{borderWidth:1,borderColor:'lightgrey',borderRadius:2,marginBottom:30,padding:10}}>
-          <TextInput
-            numberOfLines={4}
-            multiline={true}
-            value={this.state.mnemonic}
-            placeholder='助记词，按空格分隔'
-            onChangeText={(value)=>this._setMnemonic(value)}
-          />
+      <View style={{flex:1,backgroundColor:'#f7f6fc',paddingLeft:10,paddingRight:10}}>
+        <Text style={{color:'#212b66',fontSize:16,fontWeight:'bold',paddingTop:20}}>请输入备份的钱包助记词(12个英文单词)</Text>
+        <View style={{backgroundColor:'#fff',height:140,marginTop:30,borderRadius:5}}>
+            <TextInput
+              numberOfLines={4}
+              placeholder='请输入助记词,按空格分隔'
+              multiline={true}
+              blurOnSubmit='false'
+              autoCapitalize='none'
+              value={this.state.mnemonic}
+              onChangeText={(value)=>this._setMnemonic(value)}
+              style={{height:100,padding:20,paddingTop:20,paddingBottom:20}}></TextInput>
         </View>
-        <Button title='导入' onPress={this._submit} />
+        <TouchableOpacity style={{marginTop:100}} onPress={this._submit}>
+            <ImageBackground
+                style={{height:42,margin:30,marginBottom:15}}
+                imageStyle={{height:42,alignItems:'center'}}
+                source={require('../images/wallet-btn.png')}>
+                <View style={{alignItems:'center',justifyContent:'center',height:42}}>
+                    <Text style={{fontSize:14,color:'#ffffff',alignSelf:'center'}}>立即导入</Text>
+                </View>
+            </ImageBackground>
+        </TouchableOpacity>
+        <Text style={{textAlign:'center',fontWeight:'100'}}
+          onPress={()=>{this.props.navigation.navigate('Web',{title:'帮助中心',link:api.word})}}>什么是助记词?</Text>
       </View>
     )
   }

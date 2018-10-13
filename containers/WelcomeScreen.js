@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {StyleSheet, Dimensions, ImageBackground, Image, View, Text, Button} from 'react-native'
+import {StyleSheet, Dimensions,TouchableOpacity, ImageBackground, Image, View, Text, Button} from 'react-native'
 const {width} = Dimensions.get('window')
 
 export default class WelcomeScreen extends Component {
@@ -10,32 +10,30 @@ export default class WelcomeScreen extends Component {
   render() {
     const { navigate } = this.props.navigation
     return (
-      <View style={styles.container}>
-        <Image
-          style={{width:80,height:80,marginBottom:20}}
-          source={require('../images/logo.png')} />
-        <Text style={{marginBottom:120,color:'#212b66',fontSize:18}}>
-          欢迎使用币加</Text>
-        <View style={{width:'50%',marginBottom:20}}>
-          <Button
-            color='#212b66'
-            onPress={()=>navigate('SetPassword')}
-            title='创建钱包' />
-        </View>
-        <View style={{width:'50%'}}>
-          <Button
-            color='#212b66'
-            onPress={()=>navigate('ImportSeed')}
-            title='导入钱包' />
-        </View>
-      </View>
+        <ImageBackground
+          style={styles.container}
+          imageStyle={{width:width,height:'100%',flex:1,marginTop:'67%'}}
+          resizeMode='contain'
+          source={require('../images/welcoemBackimg.png')}>
+            <Image
+              style={{width:136,height:136,marginBottom:20}}
+              source={require('../images/welcomeLogo.png')} />
+            <Text style={{marginBottom:110,color:'#212b66',fontSize:18}}>
+              欢迎使用币加</Text>
+            <TouchableOpacity onPress={()=>navigate('SetPassword')} style={{backgroundColor:'#fff',marginBottom:20,height:46,justifyContent:'center',width:220,borderWidth:.3,borderColor:'#c7c7ce',borderRadius:5}}>
+              <Text style={{textAlign:'center'}}>创建钱包</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigate('ImportSeed')} style={{backgroundColor:'#fff',marginBottom:20,height:46,justifyContent:'center',width:220,borderWidth:.3,borderColor:'#c7c7ce',borderRadius:5}}>
+              <Text style={{textAlign:'center'}}>导入钱包</Text>
+            </TouchableOpacity>
+        </ImageBackground>
     )
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor:'white',
+    backgroundColor:'#f7f6fc',
     flex:1,
     alignItems:'center',
     justifyContent:'center'
