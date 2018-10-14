@@ -47,7 +47,6 @@ export default class CoinListScreen extends Component {
   _keyExtractor = (item,i) => i.toString()
 
   _renderItem = ({item}) => {
-    const coin = this.state.coinData
     return (
       <View style={{flexDirection:'row',alignItems:'center',padding:15,backgroundColor:'white',marginBottom:1}}>
         <Image source={{uri:item.logo}} style={{width:32,height:32}} />
@@ -63,10 +62,14 @@ export default class CoinListScreen extends Component {
   }
 
   render() {
+    const coin = this.state.coinData
+    console.log('render', this.state.mycoins)
+    const mycoins = this.state.mycoins
     return (
       <FlatList
         data={this.state.coins}
         keyExtractor={this._keyExtractor}
+        extraData={this.state}
         renderItem={this._renderItem}
       />
     )
