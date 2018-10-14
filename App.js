@@ -7,6 +7,7 @@ import WebScreen from './containers/WebScreen'
 import HomeScreen from './containers/HomeScreen'
 import SettingScreen from './containers/SettingScreen'
 import AssetAddScreen from './containers/AssetAddScreen'
+import CreateWalletScreen from './containers/CreateWalletScreen'
 import AboutScreen from './containers/AboutScreen'
 import GroupScreen from './containers/GroupScreen'
 import LogScreen from './containers/LogScreen'
@@ -66,6 +67,7 @@ const AuthStack = createStackNavigator({
   Welcome: WelcomeScreen,
   // Welcome: DetailScreen,
   SetPassword: SetPasswordScreen,
+  CreateWallet: CreateWalletScreen,
   Import: ImportScreen,
   ImportSeed: ImportSeedScreen
 })

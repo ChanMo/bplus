@@ -7,35 +7,37 @@ export default class PasswordScreen extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      account: null,
       password: null,
+      input: null,
       valid: false,
       fetching: false,
+      to: null
     }
   }
 
   componentDidMount() {
-    this._getAccount()
+    let to = this.props.navigation.getParam('to')
+    this.setState({to:to})
+    this._getPassword()
   }
 
-  _getAccount = async() => {
-    const account = await AsyncStorage.getItem('account')
-    this.setState({account: account})
+  _getPassword = async() => {
+    const password = await AsyncStorage.getItem('password')
+    this.setState({password: password})
   }
 
   _setPassword(value) {
-    let valid = false
-    if(value.length > 6) {
-      valid = true
-    }
     this.setState({
-      password: value,
-      valid: valid
+      input: value
     })
   }
 
-  _checkPassword = () => {
-    let password = this.state.password
+  _submit= () => {
+    if (this.state.input !== this.state.password) {
+      Alert.alert('密码错误')
+    } else {
+      this.props.navigation.navigate(this.state.to)
+    }
   }
 
   _renderHeader = () => (
@@ -54,11 +56,7 @@ export default class PasswordScreen extends Component {
   )
 
   _renderButton = () => {
-    if(!this.state.valid) {
-      return <Button title='确定' disabled onPress={()=>null} />
-    } else {
-      return <Button title='确定' onPress={this._checkPassword}/>
-    }
+    return <Button title='确定' onPress={this._submit}/>
   }
 
   render() {
@@ -70,7 +68,8 @@ export default class PasswordScreen extends Component {
           <Text style={styles.label}>密码</Text>
           <View style={styles.input}>
             <TextInput
-              value={this.state.password}
+              value={this.state.input}
+              keyboardType='numeric'
               onChangeText={(value)=>this._setPassword(value)}
               height={40} />
           </View>

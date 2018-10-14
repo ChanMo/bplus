@@ -137,7 +137,7 @@ export default class WalletScreen extends Component {
       }}>
       <TouchableOpacity
         style={[styles.mainAction, {borderRightWidth:1}]}
-        onPress={()=>this.props.navigation.navigate('Transfer')}>
+        onPress={()=>this.props.navigation.navigate('Password',{to:'Transfer'})}>
           <Image
             source={require('../images/wallet_send.png')}
             style={{width:18,height:18,marginRight:10}} />

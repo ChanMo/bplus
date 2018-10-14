@@ -20,10 +20,14 @@ export default class WelcomeScreen extends Component {
               source={require('../images/welcomeLogo.png')} />
             <Text style={{marginBottom:110,color:'#212b66',fontSize:18}}>
               欢迎使用币加</Text>
-            <TouchableOpacity onPress={()=>navigate('SetPassword')} style={{backgroundColor:'#fff',marginBottom:20,height:46,justifyContent:'center',width:220,borderWidth:.3,borderColor:'#c7c7ce',borderRadius:5}}>
+            <TouchableOpacity
+              onPress={()=>navigate('SetPassword',{to:'CreateWallet'})}
+              style={styles.button}>
               <Text style={{textAlign:'center'}}>创建钱包</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={()=>navigate('ImportSeed')} style={{backgroundColor:'#fff',marginBottom:20,height:46,justifyContent:'center',width:220,borderWidth:.3,borderColor:'#c7c7ce',borderRadius:5}}>
+            <TouchableOpacity
+              onPress={()=>navigate('ImportSeed')}
+              style={styles.button}>
               <Text style={{textAlign:'center'}}>导入钱包</Text>
             </TouchableOpacity>
         </ImageBackground>
@@ -37,5 +41,15 @@ const styles = StyleSheet.create({
     flex:1,
     alignItems:'center',
     justifyContent:'center'
+  },
+  button: {
+    backgroundColor:'#fff',
+    marginBottom:20,
+    height:46,
+    justifyContent:'center',
+    width:220,
+    borderWidth:.3,
+    borderColor:'#c7c7ce',
+    borderRadius:5
   }
 })
