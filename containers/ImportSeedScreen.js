@@ -55,7 +55,7 @@ export default class ImportSeedScreen extends Component {
               numberOfLines={4}
               placeholder='请输入助记词,按空格分隔'
               multiline={true}
-              blurOnSubmit='false'
+              blurOnSubmit={false}
               autoCapitalize='none'
               value={this.state.mnemonic}
               onChangeText={(value)=>this._setMnemonic(value)}
