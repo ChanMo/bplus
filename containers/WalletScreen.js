@@ -27,6 +27,7 @@ export default class WalletScreen extends Component {
 
   componentDidMount() {
     DeviceEventEmitter.addListener('mycoins_changed', (e)=>this._getCoins())
+    this._getPrice() // 获取每个token价格
     this._getAccount()
   }
 
@@ -36,17 +37,19 @@ export default class WalletScreen extends Component {
     console.log(coins)
     this.setState({coins:JSON.parse(coins)})
     this._getTokenBalance() // 获取每个token数量
-    this._getPrice() // 获取每个token价格
   }
 
   // 获取用户token的市场价格
   _getPrice = async() => {
     const prices = await AsyncStorage.getItem('prices')
     console.log(prices)
+    console.log(Object.keys(tokens))
     if(prices) {
       this.setState({prices: JSON.parse(prices)})
     } else {
-      this._fetchPrice()
+      let coins = Object.keys(tokens)
+      coins.push('ETH')
+      this._fetchPrice(coins)
     }
     //console.log(this.state.prices.BAT.quote.CNY.price)
   }
@@ -79,8 +82,9 @@ export default class WalletScreen extends Component {
   }
 
   // 从接口获取tokens的市场价格
-  _fetchPrice = () => {
-    let coins = this.state.coins.toString()
+  _fetchPrice = (coins) => {
+    coins = coins.toString()
+    console.log('_fetchPrice', coins)
     let url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&convert=CNY`
     console.log(url)
     return fetch(url, {
