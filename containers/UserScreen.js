@@ -18,8 +18,8 @@ export default class UserScreen extends Component {
 
   _renderHeader = () => (
     <ImageBackground
-      style={{width:'100%',height:74,overflow:'hidden'}}
-      imageStyle={{width:width,height:width*5/6}}
+      style={{width:'100%',height:74}}
+      imageStyle={{width:width,height:74}}
       source={require('../images/wallet-bg.png')}>
       <View style={{flexDirection:'row',marginTop:20,alignItems:'center',justifyContent:'center',height:54}}>
         <Text style={{fontSize:16,alignSelf:'center',color:'white'}}>我的</Text>

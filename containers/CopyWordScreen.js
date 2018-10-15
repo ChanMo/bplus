@@ -3,7 +3,7 @@ import {AsyncStorage,ImageBackground,FlatList, TouchableOpacity, View, Text,Dime
 
 export default class UserScreen extends Component {
     static navigationOptions = {
-        title: '钱包工具'
+        title: '钱包备份'
     }
     constructor(props) {
         super(props)
@@ -11,7 +11,6 @@ export default class UserScreen extends Component {
             words:[
               'text',
               'number',
-              'window',
               'value',
               'display',
               'text',

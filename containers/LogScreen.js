@@ -16,7 +16,7 @@ export default class LogScreen extends Component {
     super(props)
     this.state = {
       account: null,
-      logs: [{from:'1',to:'2',timeStamp:'1111',value:'1000000'}],
+      logs: [],
       fetching: true,
       refreshing: false
     }

@@ -3,7 +3,7 @@ import {AsyncStorage,ImageBackground,Alert, TouchableOpacity, View, Text,Dimensi
 
 export default class UserScreen extends Component {
     static navigationOptions = {
-        title: '钱包工具'
+        title: '钱包备份'
       }
       constructor(props) {
         super(props)
