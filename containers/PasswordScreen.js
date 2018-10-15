@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Alert, StyleSheet, AsyncStorage , TouchableOpacity, View, TextInput, Text, ImageBackground} from 'react-native'
+import {DeviceEventEmitter, Alert, StyleSheet, AsyncStorage , TouchableOpacity, View, TextInput, Text, ImageBackground} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 import colors from '../colors'
 
@@ -39,7 +39,8 @@ export default class PasswordScreen extends Component {
     if (value !== this.state.password) {
       Alert.alert('密码错误')
     } else {
-      this.props.navigation.navigate(this.state.to)
+      DeviceEventEmitter.emit('check_password_pass')
+      this.props.navigation.goBack()
     }
   }
 

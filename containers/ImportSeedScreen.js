@@ -25,24 +25,33 @@ export default class ImportSeedScreen extends Component {
   _submit = () => {
     let mnemonic = this.state.mnemonic
     console.log(mnemonic)
+    // 验证助记词
     if(!bip39.validateMnemonic(mnemonic)) {
       Alert.alert('请输入正确的助记词')
       return
     }
+    // 把助记词转换为种子
     let seed = bip39.mnemonicToSeed(mnemonic)
     console.log(seed)
+
+    // 通过种子生成root
     const root = HDKey.fromMasterSeed(seed)
     console.log(root)
+
     const masterPrivateKey = root.privateKey.toString('hex')
     console.log(masterPrivateKey)
     const addrNode = root.derive("m/44'/60'/0'/0/0")
     const pubKey = ethUtil.privateToPublic(addrNode._privateKey);
-    console.log(pubKey)
+    console.log('privateKey', JSON.stringify(addrNode._privateKey))
+    console.log('pubKey', pubKey)
     const addr = ethUtil.publicToAddress(pubKey).toString('hex')
-    console.log(addr)
     const address = ethUtil.toChecksumAddress(addr);
-    console.log(address)
-    AsyncStorage.multiSet([['mnemonic', mnemonic], ['account', address], ['mycoins', JSON.stringify(['ETH'])]])
+    console.log('address', address)
+    AsyncStorage.multiSet([
+      ['mnemonic', mnemonic],
+      ['privateKey', JSON.stringify(addrNode._privateKey)],
+      ['account', address],
+      ['mycoins', JSON.stringify(['ETH'])]])
     this.props.navigation.navigate('SetPassword',{to:'App'})
   }
 

@@ -1,6 +1,8 @@
 import React, {Component} from 'react'
-import {Alert, Modal, TouchableOpacity,ImageBackground, AsyncStorage, StatusBar, StyleSheet, View, TextInput, Text, Button} from 'react-native'
+import {DeviceEventEmitter, Alert, Modal, TouchableOpacity,ImageBackground, AsyncStorage, StatusBar, StyleSheet, View, TextInput, Text, Button} from 'react-native'
 import colors from '../colors'
+
+const ethTx = require('ethereumjs-tx')
 
 export default class TransferScreen extends Component {
   static navigationOptions = {
@@ -24,6 +26,8 @@ export default class TransferScreen extends Component {
   }
 
   componentDidMount() {
+    DeviceEventEmitter.addListener('check_password_pass',
+      (e)=>this._doTransaction())
     web3.eth.getGasPrice().then((value)=>this.setState({gasPrice:value}))
     this._getAccount()
   }
@@ -32,12 +36,14 @@ export default class TransferScreen extends Component {
     this.setState({modalVisible:false})
   }
 
+  // 获取账户
   _getAccount = async() => {
     const account = await AsyncStorage.getItem('account')
     this.setState({account:account})
-    this._getBalance()
+    this._getBalance() //获取资产
   }
 
+  // 获取资产
   _getBalance = () => {
     return web3.eth.getBalance(this.state.account)
       .then((res)=>web3.utils.fromWei(res, 'ether'))
@@ -45,45 +51,60 @@ export default class TransferScreen extends Component {
       .catch((error)=>Alert.alert(error.toString()))
   }
 
+  // 设置收款人地址
   _setTo(value) {
     this.setState({to:value, toValid:true})
   }
 
+  // 设置转账金额
   _setValue(value) {
-    let valid = false
-    if(value > 0 && value <= this.state.balance) {
-      valid = true
-    }
+    let valid = true
+    //let valid = false
+    //if(value > 0 && value <= this.state.balance) {
+    //  valid = true
+    //}
     this.setState({
       value: value,
       valueValid: valid
     })
   }
 
-  _submit = () => {
+  _doTransaction = async() => {
     //web3.eth.personal.unlockAccount(this.state.account, this.state.password, 600).then(console.log).catch((error)=>Alert.alert(error.toString()))
     //return
+    const value = `0x${web3.utils.toWei(this.state.value)}`
+    console.log(value)
     let data = {
-      nonce: 1,
+      nonce: '0x00',
       from: this.state.account,
       gasPrice: this.state.gasPrice,
-      gas: "21000",
+      //gas: "21000",
+      gasLimit: '0x2710',
       //to: this.state.to,
       to: "0xA32917f203089E11a4F8cff1535498BA3E3E7c86",
-      value: web3.utils.toWei(this.state.value),
-      data: ""
+      value: value,
+      chainId: 3,
+      data: "0x00"
     }
-    console.log(data)
-    console.log(this.state.password)
-
-    web3.eth.signTransaction(data, this.state.password)
-      .then((res)=>web3.eth.sendSignedTransaction(res.raw).on('receipt', console.log))
+    const tx = new ethTx(data)
+    const privateKey = await AsyncStorage.getItem('privateKey')
+    console.log(privateKey)
+    tx.sign(Buffer.from(JSON.parse(privateKey)))
+    console.log('tx', tx)
+    const serializedTx = tx.serialize()
+    console.log('serializeredtx', serializedTx.toString())
+    web3.eth.sendSignedTransaction(`0x${serializedTx.toString('hex')}`)
+      .then((res)=>console.log(res))
       .catch((error)=>Alert.alert(error.toString()))
+
+    //web3.eth.signTransaction(data, this.state.password)
+    //  .then((res)=>web3.eth.sendSignedTransaction(res.raw).on('receipt', console.log))
+    //  .catch((error)=>Alert.alert(error.toString()))
   }
 
   _renderButton = () => {
     if(!this.state.toValid || !this.state.valueValid) {
-      console.log('valid error')
+      //console.log('valid error')
       return <TouchableOpacity style={{margin:30,borderRadius:5,marginTop:80,backgroundColor:'#808080'}} disabled onPress={()=>null}>
               <View style={{alignItems:'center',justifyContent:'center',height:42}}>
                   <Text style={{color:'#ffffff',alignSelf:'center'}}>下一步</Text>
@@ -98,7 +119,7 @@ export default class TransferScreen extends Component {
     }else {
       //return <Button title='下一步' color={colors.primary}
       //  onPress={()=>this.props.navigation.navigate('Password')} />
-      return <TouchableOpacity style={{margin:30,borderRadius:5,marginTop:80}} onPress={()=>this.setState({modalVisible:true})}>
+      return <TouchableOpacity style={{margin:30,borderRadius:5,marginTop:80}} onPress={()=>this.props.navigation.navigate('Password')}>
               <ImageBackground
                   style={{height:42}}
                   imageStyle={{height:42,alignItems:'center'}}
@@ -129,7 +150,7 @@ export default class TransferScreen extends Component {
             <Text style={{textAlign:'center'}}>支付详情</Text>
             <View style={styles.modalBox}>
               <Text style={{flex:2,color:'#212b66',fontWeight:'bold'}}>密码</Text>
-              <Text style={{flex:3,olor:'#212b66',fontWeight:'100',textAlign:'right'}}>100,100xdc</Text>
+              <Text style={{flex:3,color:'#212b66',fontWeight:'100',textAlign:'right'}}>100,100xdc</Text>
             </View>
             <View style={styles.modalBox}>
               <Text style={styles.modalLeft}>订单信息:</Text>
