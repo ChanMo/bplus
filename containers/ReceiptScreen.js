@@ -41,11 +41,7 @@ export default class ReceiptScreen extends Component {
               placeholder='设置收款金额'
               multiline={true}
               blurOnSubmit={false}
-<<<<<<< HEAD
-              autoCapitalize="none"
-=======
               autoCapitalize='none'
->>>>>>> a36e840fcdb0801bc857e5420aa22394aebbd55b
               style={{width:180}}></TextInput>
           <Text style={{padding:5,flex:4,color:'#212b66'}}>ETH</Text>
         </View>
