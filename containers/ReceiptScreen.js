@@ -18,6 +18,7 @@ export default class ReceiptScreen extends Component {
 
   _getAccount = async() => {
     const account = await AsyncStorage.getItem('account')
+    console.log(account)
     this.setState({account:account})
   }
 
@@ -38,8 +39,8 @@ export default class ReceiptScreen extends Component {
           <Text style={{padding:5,flex:6,color:'#212b66',fontWeight:"bold"}}>收款金额:</Text>
           <TextInput
               placeholder='设置收款金额'
-              multiline="true"
-              blurOnSubmit='false'
+              multiline={true}
+              blurOnSubmit={false}
               autoCapitalize='none'
               style={{width:180}}></TextInput>
           <Text style={{padding:5,flex:4,color:'#212b66'}}>ETH</Text>
