@@ -81,12 +81,12 @@ export default class PasswordScreen extends Component {
               onChangeText={(value)=>this._setPassword(value)}
               height={0}/>
             <View style={{display:'flex',flexDirection:'row'}}>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[0]}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[1]}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[2]}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[3]}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[4]}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[5]}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[0]?'*':''}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[1]?'*':''}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[2]?'*':''}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[3]?'*':''}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[4]?'*':''}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[5]?'*':''}</Text>
             </View>
           </View>
         </View>
@@ -116,8 +116,8 @@ const styles = {
     margin:4,
     borderRadius:5,
     textAlign:'center',
-    lineHeight:40,
-    fontSize:20,
+    lineHeight:50,
+    fontSize:30,
     backgroundColor:'#ffffff'
   }
 

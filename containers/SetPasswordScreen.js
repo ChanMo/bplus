@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Alert, AsyncStorage, View, TextInput, Text, Button} from 'react-native'
+import {Alert, AsyncStorage,StyleSheet, View, TextInput, Text, Button} from 'react-native'
 
 export default class SetPasswordScreen extends Component {
   static navigationOptions = {
@@ -10,7 +10,7 @@ export default class SetPasswordScreen extends Component {
     super(props)
     this.state = {
       to: null,
-      password: null
+      password: ''
     }
   }
 
@@ -23,36 +23,72 @@ export default class SetPasswordScreen extends Component {
     this.setState({
       password: value,
     })
+    if(value.length===6){
+      this._submit(value)
+    }
   }
 
-  _submit = async() => {
-    if(!this.state.password || this.state.password.length !== 6) {
+  _submit = async(value) => {
+    if(!value || value.length !== 6) {
       Alert.alert('密码错误')
     } else {
-      await AsyncStorage.setItem('password', this.state.password)
+      Alert.alert(value)
+      await AsyncStorage.setItem('password', value)
       this.props.navigation.navigate(this.state.to)
     }
   }
 
-  _renderButton = () => {
-    return <Button color='#212b66' title='下一步' onPress={this._submit} />
+  _getFocus = () =>{
+    var passw = this.refs.passwords;
+    passw.focus()
   }
 
   render() {
     const { navigate } = this.props.navigation
     return (
-      <View style={{padding:30}}>
-        <Text style={{fontWeight:'bold',color:'#212b66',marginBottom:15}}>
-          请设置交易密码</Text>
-        <View style={{borderWidth:1,borderColor:'#b2b2b2',paddingVertical:10,paddingHorizontal:10,marginBottom:50}}>
-          <TextInput
-            secureTextEntry={true}
-            value={this.state.value}
-            onChangeText={(value) => this._setPassword(value)}
-            keyboardType='number-pad' />
+      <View style={{flex:1,backgroundColor:'#f5f5f5'}}>
+        <View style={{flex:1,padding:30}}>
+          <View style={styles.input}>
+            <TextInput
+              value={this.state.input}
+              keyboardType='numeric'
+              ref='passwords'
+              maxLength={6}
+              autoFocus={true}
+              onChangeText={(value)=>this._setPassword(value)}
+              height={0}/>
+            <View style={{display:'flex',flexDirection:'row'}}>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.password[0]?'*':''}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.password[1]?'*':''}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.password[2]?'*':''}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.password[3]?'*':''}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.password[4]?'*':''}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.password[5]?'*':''}</Text>
+            </View>
+          </View>
         </View>
-        {this._renderButton()}
       </View>
     )
   }
+}
+
+const styles = {
+  label: {
+    fontWeight: 'bold',
+    marginBottom: 5
+  },
+  oneInput:{
+    flex:1,
+    height:40,
+    width:40,
+    borderWidth:.5,
+    borderColor:'#808080',
+    margin:4,
+    borderRadius:5,
+    textAlign:'center',
+    lineHeight:50,
+    fontSize:30,
+    backgroundColor:'#ffffff'
+  }
+
 }
