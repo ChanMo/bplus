@@ -73,11 +73,8 @@ export default class WalletScreen extends Component {
     if(!tokenData) {
       return
     }
-    console.log(tokenData)
+    console.log('getTokenBalance', token)
     let contract = new web3.eth.Contract(JSON.parse(tokenData.abi), tokenData.address)
-    console.log(this.state.account)
-    //console.log(Object.keys(contract.methods).toString())
-    console.log(contract.methods.balanceOf(this.state.account).call())
     contract.methods.balanceOf(this.state.account).call().then((res) => console.log('b+', res)).catch((error)=>console.log(error))
   }
 
@@ -121,8 +118,12 @@ export default class WalletScreen extends Component {
   // 获取eth数量
   _getEthBalance = () => {
     return web3.eth.getBalance(this.state.account)
-      .then((res)=>web3.utils.fromWei(res, 'ether'))
+      .then((res)=>{
+        console.log(this.state.account, res)
+        return web3.utils.fromWei(res, 'ether')
+      })
       .then((balance)=>{
+        console.log('getEthBalance', balance)
         let balances = this.state.balances
         balances['ETH'] = balance
         this.setState({balances:balances})
