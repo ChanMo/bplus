@@ -3,7 +3,7 @@ import {AsyncStorage, FlatList, TouchableOpacity, View, Text,Dimensions} from 'r
 import Icon from 'react-native-vector-icons/Feather'
 
 const data = [
-  {name:'修改交易密码',  path:'ChangePassword'},
+  {name:'修改交易密码',  path:'ChangePassword',param:{to:'ToolList'}},
   {name:'钱包备份',  path:'Backups'},
   {name:'导出私钥',  path:'DerivedKey'},
   {name:'删除钱包',  path:'DelectHint'},

@@ -32,7 +32,6 @@ export default class SetPasswordScreen extends Component {
     if(!value || value.length !== 6) {
       Alert.alert('密码错误')
     } else {
-      Alert.alert(value)
       await AsyncStorage.setItem('password', value)
       this.props.navigation.navigate(this.state.to)
     }
