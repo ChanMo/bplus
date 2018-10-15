@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Alert, StyleSheet, AsyncStorage, TouchableOpacity, View, TextInput, Text, Button} from 'react-native'
+import {Alert, StyleSheet, AsyncStorage , TouchableOpacity, View, TextInput, Text, ImageBackground} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 import colors from '../colors'
 
@@ -8,7 +8,7 @@ export default class PasswordScreen extends Component {
     super(props)
     this.state = {
       password: null,
-      input: null,
+      input: '',
       valid: false,
       fetching: false,
       to: null
@@ -30,10 +30,13 @@ export default class PasswordScreen extends Component {
     this.setState({
       input: value
     })
+    if(value.length===6){
+      this._submit(value)
+    }
   }
 
-  _submit= () => {
-    if (this.state.input !== this.state.password) {
+  _submit= (value) => {
+    if (value !== this.state.password) {
       Alert.alert('密码错误')
     } else {
       this.props.navigation.navigate(this.state.to)
@@ -41,7 +44,7 @@ export default class PasswordScreen extends Component {
   }
 
   _renderHeader = () => (
-    <View style={{height:44,backgroundColor:'white',alignItems:'center',flexDirection:'row',elevation:3,marginTop:20,shadowColor:'grey',shadowOffset:{width:0,height:2,shadowOpacity:1,shadowRadius:1}}}>
+    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',elevation:3,marginTop:20,shadowColor:'grey',shadowOffset:{width:0,height:2,shadowOpacity:1,shadowRadius:1}}}>
       <TouchableOpacity
         style={{flex:1.7,paddingLeft:15}}
         onPress={()=>this.props.navigation.goBack()}>
@@ -55,25 +58,36 @@ export default class PasswordScreen extends Component {
     </View>
   )
 
-  _renderButton = () => {
-    return <Button title='确定' onPress={this._submit}/>
+  _getFocus = () =>{
+    var passw = this.refs.password;
+    passw.focus()
   }
 
   render() {
     const {navigate, goBack} = this.props.navigation
     return (
-      <View style={{flex:1,backgroundColor:'white'}}>
+      <View style={{flex:1,backgroundColor:'#f5f5f5'}}>
         {this._renderHeader()}
         <View style={{flex:1,padding:30}}>
-          <Text style={styles.label}>密码</Text>
+          {/* <Text style={styles.label}>密码</Text> */}
           <View style={styles.input}>
             <TextInput
               value={this.state.input}
               keyboardType='numeric'
+              ref='password'
+              maxLength={6}
+              autoFocus={true}
               onChangeText={(value)=>this._setPassword(value)}
-              height={40} />
+              height={0}/>
+            <View style={{display:'flex',flexDirection:'row'}}>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[0]}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[1]}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[2]}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[3]}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[4]}</Text>
+              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[5]}</Text>
+            </View>
           </View>
-          {this._renderButton()}
         </View>
       </View>
     )
@@ -83,14 +97,27 @@ export default class PasswordScreen extends Component {
 const styles = {
   label: {
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 5
   },
   input: {
-    borderWidth: 1,
-    borderColor: colors.lightgrey,
-    borderRadius: 2,
-    marginBottom: 15,
-    paddingHorizontal:10,
+    // borderWidth: 1,
+    // borderColor: colors.lightgrey,
+    // borderRadius: 5,
+    // marginBottom: 15,
+    // paddingHorizontal:10,
+  },
+  oneInput:{
+    flex:1,
+    height:40,
+    width:40,
+    borderWidth:.5,
+    borderColor:'#808080',
+    margin:4,
+    borderRadius:5,
+    textAlign:'center',
+    lineHeight:40,
+    fontSize:20,
+    backgroundColor:'#ffffff'
   }
 
 }
