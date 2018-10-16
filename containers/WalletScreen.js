@@ -3,10 +3,7 @@ import {DeviceEventEmitter, StyleSheet, RefreshControl, ActivityIndicator, Scrol
 import Icon from 'react-native-vector-icons/Feather'
 import {formatBalance} from '../utils'
 import tokens from '../tokens'
-
-global.web3.eth.getAccounts().then(console.log)
-console.log(web3.currentProvider.connected)
-
+import {getMarketData, getBalance} from '../utils'
 const {width} = Dimensions.get('window')
 
 export default class WalletScreen extends Component {
@@ -20,115 +17,56 @@ export default class WalletScreen extends Component {
       account: null,
       refreshing: false,
       coins: [], // 用户收藏token
-      balances: [], // token数量列表
       prices: [], // 市场价格列表
     }
   }
 
   componentDidMount() {
     DeviceEventEmitter.addListener('mycoins_changed', (e)=>this._getCoins())
-    this._getPrice() // 获取每个token价格
-    this._getAccount()
-  }
-
-  // 获取用户收藏的token列表
-  _getCoins = async() => {
-    const coins = await AsyncStorage.getItem('mycoins')
-    console.log(coins)
-    this.setState({coins:JSON.parse(coins)})
-    this._getTokenBalance() // 获取每个token数量
-  }
-
-  // 获取用户token的市场价格
-  _getPrice = async() => {
-    const prices = await AsyncStorage.getItem('prices')
-    console.log(prices)
-    console.log(Object.keys(tokens))
-    if(prices) {
-      this.setState({prices: JSON.parse(prices)})
-    } else {
-      let coins = Object.keys(tokens)
-      coins.push('ETH')
-      this._fetchPrice(coins)
-    }
-    //console.log(this.state.prices.BAT.quote.CNY.price)
-  }
-
-  // 获取用户所有token数量
-  _getTokenBalance = () => {
-    this.state.coins.map((item) => {
-      if(item == 'ETH') {
-        this._getEthBalance()
-      } else {
-        // 获取单个token数量
-        this._getTokenBalanceItem(item)
-      }
-    })
-  }
-
-  // 获取单个token数量
-  _getTokenBalanceItem = (token) => {
-    console.log('b+', token)
-    let tokenData = tokens[token]
-    if(!tokenData) {
-      return
-    }
-    console.log('getTokenBalance', token)
-    let contract = new web3.eth.Contract(JSON.parse(tokenData.abi), tokenData.address)
-    contract.methods.balanceOf(this.state.account).call().then((res) => console.log('b+', res)).catch((error)=>console.log(error))
-  }
-
-  // 从接口获取tokens的市场价格
-  _fetchPrice = (coins) => {
-    coins = coins.toString()
-    console.log('_fetchPrice', coins)
-    let url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&convert=CNY`
-    console.log(url)
-    return fetch(url, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'X-CMC_PRO_API_KEY': 'afa301a7-3f5d-4694-b87c-eb48e6e07cc8'
-      }
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.log(responseJson.data)
-        AsyncStorage.setItem('prices', JSON.stringify(responseJson.data))
-        this.setState({prices: responseJson.data})
-      })
-      .catch((error)=>console.log('api error'))
-
-  }
-
-  _onRefresh = () => {
-    this.setState({refreshing:true})
-    //this._getPrice()
-    //this._getBalance().then(()=>this.setState({refreshing:false}))
-
+    this._getAccount() // 获取account地址
   }
 
   _getAccount = async() => {
     const account = await AsyncStorage.getItem('account')
     this.setState({account:account})
-    this._getCoins()
-    //this._getBalance()
+    this._getCoins() // 获取用户tokens
   }
 
-  // 获取eth数量
-  _getEthBalance = () => {
-    return web3.eth.getBalance(this.state.account)
-      .then((res)=>{
-        console.log(this.state.account, res)
-        return web3.utils.fromWei(res, 'ether')
+  // 获取用户收藏的token列表
+  _getCoins = async() => {
+    let coins = await AsyncStorage.getItem('mycoins')
+    coins = JSON.parse(coins)
+    let tokens = []
+    coins.map(item =>
+      tokens.push({
+        'token':item,
+        'balance':getBalance(this.state.account, item)
       })
-      .then((balance)=>{
-        console.log('getEthBalance', balance)
-        let balances = this.state.balances
-        balances['ETH'] = balance
-        this.setState({balances:balances})
-      })
-      .catch((error)=>Alert.alert(error.toString()))
+    )
+    return this.setState({coins:tokens})
+  }
+
+  // 计算总资产
+  _getTotal = () => {
+    let total = 0.0000
+    this.state.coins.map(item => {
+      let priceObj = this.state.prices[item.name]
+      let price = priceObj ? priceObj.quote.CNY.price : 0.00
+      total += item.balance * price
+    })
+    console.log('total', total)
+    return total.toFixed(4)
+  }
+
+  // 从存储器中获取市场数据
+  _getMarket = async() => {
+    const market = await AsyncStorage.getItem('market')
+    return JSON.parse(market)
+  }
+
+  _onRefresh = () => {
+    this.setState({refreshing:true})
+    this._getCoins().then(()=>this.setState({refreshing:false}))
   }
 
   _renderHeader = () => (
@@ -146,32 +84,17 @@ export default class WalletScreen extends Component {
   )
 
   _renderMain = () => {
-    // 计算总资产
-    let balance = 0.0000
-    this.state.balances.map(item => {
-      let priceObj = this.state.prices[item]
-      let price = priceObj ? priceObj.quote.CNY.price : 0.00
-      balance += item * price
-    })
-    console.log(balance)
     return (
       <ImageBackground
         source={require('../images/log-bg.png')} style={styles.main}>
         <View style={{paddingHorizontal:20,paddingVertical:30}}>
-          <Text style={{fontWeight:'600',fontSize:12,color:'#4a4a4a',marginBottom:10}}>
-            我的资产</Text>
+          <Text style={styles.mainTitle}>我的资产</Text>
           <View style={{flexDirection:'row',alignItems:'center'}}>
-            <Text style={{marginRight:10,backgroundColor:'#ff9a00',borderRadius:2,paddingVertical:2,paddingHorizontal:6,fontSize:12,color:'white'}}>CNY</Text>
-            <Text style={{fontSize:28,color:'rgb(81,81,114)'}}>{balance.toFixed(4)}</Text>
+            <Text style={styles.mainCNY}>CNY</Text>
+            <Text style={styles.mainBalance}>{this._getTotal()}</Text>
           </View>
         </View>
-        <View style={{
-          backgroundColor: 'rgb(232,236,245)',
-          paddingVertical: 5,
-          borderBottomLeftRadius: 5,
-          borderBottomRightRadius: 5,
-          flexDirection: 'row',
-        }}>
+        <View style={styles.mainActionContainer}>
         <TouchableOpacity
           style={[styles.mainAction, {borderRightWidth:1}]}
           onPress={()=>this.props.navigation.navigate('Transfer')}>
@@ -192,16 +115,15 @@ export default class WalletScreen extends Component {
       </ImageBackground>
     )
   }
-  _renderItem = ({item}) => {
-    const priceObj = this.state.prices[item]
+  _renderItem(item, market) {
+    const priceObj = market[item.name]
     const price = priceObj ? priceObj.quote.CNY.price.toFixed(2) : 0.00
     const status = priceObj ? priceObj.quote.CNY.percent_change_24h.toFixed(2) : 0.00
-    const count = this.state.balances[item] ? this.state.balances[item] : 0
-    const balance = (count * price).toFixed(2)
+    const balance = (item.balance * price).toFixed(2)
     return(
       <TouchableOpacity onPress={()=>this.props.navigation.navigate('Log', {token:item.toString()})}>
         <View style={styles.item}>
-          <Text style={{color:'rgb(78,78,78)'}}>{item.toString()}</Text>
+          <Text style={{color:'rgb(78,78,78)'}}>{item.token}</Text>
           <View style={{alignItems:'flex-end'}}>
             <Text style={{fontWeight:'bold',
               color:status > 0 ? 'blue' : 'red'}}>{price}</Text>
@@ -209,7 +131,7 @@ export default class WalletScreen extends Component {
               color:status > 0 ? 'blue' : 'red'}}>{status}%</Text>
           </View>
           <View style={{alignItems:'flex-end'}}>
-            <Text style={{color:'rgb(46,46,46)'}}>{count}</Text>
+            <Text style={{color:'rgb(46,46,46)'}}>{item.balance}</Text>
             <Text style={{fontSize:12,color:'rgb(184,186,206)'}}>≈{balance}</Text>
           </View>
         </View>
@@ -222,12 +144,13 @@ export default class WalletScreen extends Component {
   )
 
   _renderToken = () => {
+    const market = this._getMarket()
     return (
       <FlatList
         style={{paddingHorizontal:15}}
         data={this.state.coins}
         keyExtractor={(item,i) => i.toString()}
-        renderItem={this._renderItem}
+        renderItem={({item}) => this._renderItem(item, market)}
         extraData={this.state}
         emptyComponent={this._renderEmpty}
       />
@@ -235,7 +158,6 @@ export default class WalletScreen extends Component {
   }
 
   render() {
-    console.log('balances', this.state.balances)
     return (
       <View style={{backgroundColor:'rgb(245,243,251)'}}>
         <ImageBackground
@@ -271,6 +193,31 @@ const styles = StyleSheet.create({
     alignItems:'center',
     paddingHorizontal:15,
     justifyContent:'space-between'
+  },
+  mainTitle: {
+    fontWeight:'600',
+    fontSize:12,
+    color:'#4a4a4a',
+    marginBottom:10
+  },
+  mainCNY: {
+    marginRight:10,
+    backgroundColor:'#ff9a00',
+    borderRadius:2,
+    paddingVertical:2,
+    paddingHorizontal:6,
+    fontSize:12,color:'white'
+  },
+  mainBalance: {
+    fontSize:28,
+    color:'rgb(81,81,114)'
+  },
+  mainActionContainer: {
+    backgroundColor: 'rgb(232,236,245)',
+    paddingVertical: 5,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+    flexDirection: 'row',
   },
   bg: {
 
