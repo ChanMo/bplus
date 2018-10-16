@@ -32,7 +32,6 @@ export default class UserScreen extends Component {
     _validate = () => {
         AsyncStorage.getItem('mnemonic').then(result =>{
             if(JSON.stringify(result.split(' ')) == JSON.stringify(this.state.words)){
-                Alert.alert('验证成功')
                 this.props.navigation.navigate('ToolList')
             }
             else{

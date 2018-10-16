@@ -1,19 +1,39 @@
 import React, {Component} from 'react'
 import {AsyncStorage,ImageBackground,TextInput, TouchableOpacity, View, Text,Dimensions,Alert} from 'react-native'
 
-const {width} = Dimensions.get('window')
-
-const data = [
-  {name:'text'},
-  {name:'item'},
-  {name:'value'},
-  {name:'money'},
-]
-
-export default class UserScreen extends Component {
+export default class DelectWalletScreen extends Component {
     static navigationOptions = {
         title: '删除钱包'
       }
+    constructor(props) {
+        super(props)
+        this.state = {
+            words:''
+        }
+    }
+
+    _setMnemonic(value) {
+      this.setState({words:value})
+    }
+
+    _validate = () =>{
+      AsyncStorage.getItem('mnemonic').then(result =>{
+        if(result == this.state.words){
+          Alert.alert('导出私钥','钱包助记词验证已通过，确认是否删除钱包？',
+          [
+            {text: '取消', onPress: () => console.log('Ask me later pressed')},
+            {text: '确定', onPress: () => {this._clear()}, style: 'cancel'}
+          ])
+        }
+        else if(this.state.words==''){
+          Alert.alert('助记词不能为空')
+        }
+        else{
+            Alert.alert('助记词不匹配，请重新输入')
+        }
+      })
+    }
+
   _renderItem = ({item}) => (
     <TouchableOpacity onPress={()=>console.log(1)} style={{flex:1}}>
         <Text style={{}}>{item.name}</Text>
@@ -37,18 +57,14 @@ export default class UserScreen extends Component {
         <View style={{backgroundColor:'#fff',height:140,marginTop:30,borderRadius:5}}>
             <TextInput
               placeholder='请输入备份的钱包助记词,按空格分隔'
-              multiline="true"
-              blurOnSubmit='false'
+              multiline={true}
+              blurOnSubmit={false}
+              value={this.state.words}
+              onChangeText={(value)=>this._setMnemonic(value)}
               autoCapitalize='none'
               style={{height:100,padding:20,paddingTop:20,paddingBottom:20}}></TextInput>
         </View>
-        <TouchableOpacity style={{marginTop:100}} onPress={()=>{
-          Alert.alert('导出私钥','钱包助记词验证已通过，确认是否删除钱包？',
-          [
-            {text: '取消', onPress: () => console.log('Ask me later pressed')},
-            {text: '确定', onPress: () => {this._clear()}, style: 'cancel'}
-          ])
-        }}>
+        <TouchableOpacity style={{marginTop:100}} onPress={()=>this._validate()}>
             <ImageBackground
                 style={{height:42,margin:30}}
                 imageStyle={{height:42,alignItems:'center'}}

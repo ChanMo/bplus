@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { View, Text,TouchableOpacity,ImageBackground,Clipboard,Alert} from 'react-native'
+import { View, Text,TouchableOpacity,ImageBackground,Clipboard,Alert,AsyncStorage} from 'react-native'
 
 export default class UserScreen extends Component {
     static navigationOptions = {
@@ -8,8 +8,18 @@ export default class UserScreen extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            copyText:'034876293fisefhkawjb53ijiiawdng'
+            copyText:''
         }
+    }
+
+    componentDidMount() {
+        this._gettext()
+    }
+
+    _gettext = () => {
+        AsyncStorage.getItem('privateKey').then(result =>{
+            this.setState({copyText:result})
+        })
     }
 
     async _copytext() {
