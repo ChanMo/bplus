@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {StatusBar, Platform, StyleSheet, Text, View} from 'react-native'
 import { createSwitchNavigator, createStackNavigator } from 'react-navigation'
+import BackgroundTask from './service'
 
 import WelcomeScreen from './containers/WelcomeScreen'
 import WebScreen from './containers/WebScreen'
@@ -93,6 +94,24 @@ const MainStack = createStackNavigator({
 
 
 export default class App extends Component {
+  componentDidMount() {
+    BackgroundTask.schedule({
+      period: 1800,
+    })
+    this.checkStatus()
+  }
+  async checkStatus() {
+    const status = await BackgroundTask.statusAsync()
+    if(status.avaiable) {
+      return
+    }
+    const reason = status.unavaiableReason
+    if(reason === BackgroundTask.UNAVAIABLE_DENIED) {
+      console.log('BackgroundTask Denied')
+    } else if(reason === BackgroundTask.UNAVAIABLE_RESTRICTED) {
+      console.log('BackgroundTask Restricted')
+    }
+  }
   render() {
     return (
       <View style={{flex:1}}>

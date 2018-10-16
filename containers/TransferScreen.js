@@ -26,10 +26,17 @@ export default class TransferScreen extends Component {
   }
 
   componentDidMount() {
+    //this.addListenerOn(DeviceEventEmitter, 'check_password_pass', this._doTransaction)
+    //this.addEventListener('check_password_pass', this._doTransaction)
     DeviceEventEmitter.addListener('check_password_pass',
       (e)=>this._doTransaction())
     web3.eth.getGasPrice().then((value)=>this.setState({gasPrice:value}))
     this._getAccount()
+  }
+
+  componentWillUnmount() {
+    //this.removeEventListener('check_password_pass')
+    //DeviceEventEmitter.removeListener()
   }
 
   _onClose = () => {
