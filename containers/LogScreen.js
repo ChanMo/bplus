@@ -8,9 +8,9 @@ const apikey = 'G1T2IX1V1J157RINVS4H1R7QJ3811Z4D6W'
 const url = 'https://api.etherscan.io/api'
 
 export default class LogScreen extends Component {
-  static navigationOptions = {
-    title: "ETH"
-  }
+  static navigationOptions = ({navigation}) => ({
+    title: navigation.getParam('token')
+  })
 
   constructor(props) {
     super(props)
@@ -72,14 +72,14 @@ export default class LogScreen extends Component {
           <Text style={{fontSize:16,alignSelf:'center'}}>≈¥1384.33</Text>
         </View>
       </ImageBackground>
-      
+
   )
 
   _renderItem = ({item, index}) => (
     <TouchableOpacity onPress={()=>this.props.navigation.navigate('Detail')} style={{flex:1,backgroundColor:'white',margin:15,borderRadius:3,marginTop:2,marginBottom:8,padding:15,paddingTop:10,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'}}>
       <View>
         <Text style={{color:colors.dark,fontSize:14,lineHeight:20}}>from:{this._filterShort(item.from)}</Text>
-        <Text style={{color:colors.lightgrey,lfontSize:12,ineHeight:20}}>{formatTime(item.timeStamp)}</Text>
+        <Text style={{color:colors.lightgrey,fontSize:12,ineHeight:20}}>{formatTime(item.timeStamp)}</Text>
       </View>
       <View>
         <Text style={{color:colors.dark,fontSize:14,lineHeight:20,color:'#ff9b00'}}>{web3.utils.fromWei(item.value, 'ether')+' ether'}</Text>

@@ -199,7 +199,7 @@ export default class WalletScreen extends Component {
     const count = this.state.balances[item] ? this.state.balances[item] : 0
     const balance = (count * price).toFixed(2)
     return(
-      <TouchableOpacity onPress={()=>this.props.navigation.navigate('Log')}>
+      <TouchableOpacity onPress={()=>this.props.navigation.navigate('Log', {token:item.toString()})}>
         <View style={styles.item}>
           <Text style={{color:'rgb(78,78,78)'}}>{item.toString()}</Text>
           <View style={{alignItems:'flex-end'}}>
