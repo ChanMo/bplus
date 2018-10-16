@@ -9,8 +9,36 @@ export default class UserScreen extends Component {
         super(props)
         this.state = {
             words:[],
-            messyWords:['text','number','window','value']
+            messyWords:[]
         }
+    }
+
+    componentDidMount() {
+        this._getwords()
+    }
+    // 获取数组并打乱
+    _getwords = () => {
+        AsyncStorage.getItem('mnemonic').then(result =>{
+            let arr = result.split(' ')
+            let i = arr.length;
+            while (i) {
+                let j = Math.floor(Math.random() * i--);
+                [arr[j], arr[i]] = [arr[i], arr[j]];
+            }
+            this.setState({messyWords:arr})
+        })
+    }
+    //验证
+    _validate = () => {
+        AsyncStorage.getItem('mnemonic').then(result =>{
+            if(JSON.stringify(result.split(' ')) == JSON.stringify(this.state.words)){
+                Alert.alert('验证成功')
+                this.props.navigation.navigate('ToolList')
+            }
+            else{
+                Alert.alert('助记词不匹配，请重新输入')
+            }
+        })
     }
 
   _clear = async() => {
@@ -55,7 +83,7 @@ export default class UserScreen extends Component {
             )}
         </View>
         
-        <TouchableOpacity onPress={()=>{}}>
+        <TouchableOpacity onPress={()=>this._validate()}>
             <ImageBackground
                 style={{height:42,margin:30,marginTop:20}}
                 imageStyle={{height:42,alignItems:'center'}}

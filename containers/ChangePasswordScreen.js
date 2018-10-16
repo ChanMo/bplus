@@ -53,15 +53,19 @@ export default class PasswordScreen extends Component {
         }
         break;
         case 1:
-        this.setState({
-          input: '',
-          changeTip:'确认新密码',
-          passwordState:passwordState+1,
-          newPassword:value
-        })
+        if (value == this.state.password) {
+          Alert.alert('新旧密码相同，请修改新密码')
+        }
+        else{
+          this.setState({
+            input: '',
+            changeTip:'确认新密码',
+            passwordState:passwordState+1,
+            newPassword:value
+          })
+        }
         break;
         case 2:
-          console.log(value,this.state.newPassword)
           if (value !== this.state.newPassword) {
             Alert.alert('两次密码不一致，请重新输入')
           }

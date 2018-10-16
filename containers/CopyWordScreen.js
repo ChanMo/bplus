@@ -8,23 +8,16 @@ export default class UserScreen extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            words:[
-              'text',
-              'number',
-              'value',
-              'display',
-              'text',
-              'number',
-              'window',
-              'value',
-              'display',
-              'text',
-              'number',
-              'window'
-            ]
+            words:[]
         }
     }
 
+    componentDidMount() {
+        this._getwords()
+    }
+    _getwords = () => {
+        AsyncStorage.getItem('mnemonic').then(result =>this.setState({words:result.split(' ')}))
+    }
   _clear = async() => {
     try {
       await AsyncStorage.clear()

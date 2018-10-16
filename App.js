@@ -31,6 +31,7 @@ import ChangePasswordScreen from './containers/ChangePasswordScreen'
 import BackupsScreen from './containers/BackupsScreen'
 import CopyWordScreen from './containers/CopyWordScreen'
 import ValidateWordScreen from './containers/ValidateWordScreen'
+
 import DelectHintScreen from './containers/DelectHintScreen'
 import DelectWalletScreen from './containers/DelectWalletScreen'
 
