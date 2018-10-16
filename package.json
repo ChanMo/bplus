@@ -16,6 +16,8 @@
     "node-libs-browser": "^2.1.0",
     "react": "16.4.1",
     "react-native": "0.56.0",
+    "react-native-background-fetch": "^2.0.8",
+    "react-native-background-task": "^0.2.1",
     "react-native-elements": "^1.0.0-beta5",
     "react-native-qrcode": "^0.2.7",
     "react-native-vector-icons": "^5.0.0",
