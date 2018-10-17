@@ -2,7 +2,8 @@ import React, {Component} from 'react'
 import {RefreshControl, ActivityIndicator,Dimensions,ImageBackground, Alert, AsyncStorage,StyleSheet, TouchableOpacity, FlatList, View, Text} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 import colors from '../colors'
-import {formatTime} from '../utils'
+import {formatTime,getCoinsValData} from '../utils'
+import { deflate } from 'zlib';
 
 const apikey = 'G1T2IX1V1J157RINVS4H1R7QJ3811Z4D6W'
 const url = 'https://api.etherscan.io/api'
@@ -18,12 +19,34 @@ export default class LogScreen extends Component {
       account: null,
       logs: [],
       fetching: true,
-      refreshing: false
+      refreshing: false,
+      coinNum:20,
+      coinTran:1,
+      txreceipt_status:'交易完成'
     }
   }
 
   componentDidMount() {
+    this._getCoinsValData("ETH")
     this._getAccount()
+  }
+
+  _getCoinsValData = (coins) => {
+    let url = `http://bplus.bijia666.com/index.php/getPriceByCoinName?coin=`+coins
+    return fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'X-CMC_PRO_API_KEY': 'afa301a7-3f5d-4694-b87c-eb48e6e07cc8'
+      }
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({
+          coinTran:responseJson.data
+        })
+      })
+      .catch((error) => console.log(error))
   }
 
   _getAccount = async() => {
@@ -39,11 +62,10 @@ export default class LogScreen extends Component {
 
   _fetchLog = () => {
     let curl = url + `?module=account&action=txlist&address=${this.state.account}&startblock=0&endblock=99999999&sort=asc&apikey=${apikey}`
-    console.log(curl)
+    // console.log(curl)
     return fetch(curl)
       .then((response) => response.json())
       .then((responseJson) => {
-        // Alert.alert(responseJson)
         if(responseJson.status == '1') {
           this.setState({logs:responseJson.result})
         } else {
@@ -61,6 +83,17 @@ export default class LogScreen extends Component {
     return str.substr(0,7)+'...'+str.substr(-7)
   }
 
+  _setState = (state)=>{
+    switch(state){
+      case '0':
+      return '打包失败'
+      case '1':
+      return '打包完成'
+      case '2':
+      return '打包中'
+    }
+  }
+
   _keyExtractor = (item,i) => i.toString()
 
   _renderHeader = () => (
@@ -68,22 +101,21 @@ export default class LogScreen extends Component {
         imageStyle={{}}
         style={{height:140,lexDirection:'row',justifyContent:'center',}}>
         <View style={{alignSelf:'center'}}>
-          <Text style={{fontSize:28,alignSelf:'center'}}>1.32</Text>
-          <Text style={{fontSize:16,alignSelf:'center'}}>≈¥1384.33</Text>
+          <Text style={{fontSize:28,alignSelf:'center'}}>{this.state.coinNum}</Text>
+          <Text style={{fontSize:16,alignSelf:'center'}}>≈¥{this.state.coinNum*this.state.coinTran}</Text>
         </View>
       </ImageBackground>
-
   )
 
   _renderItem = ({item, index}) => (
     <TouchableOpacity onPress={()=>this.props.navigation.navigate('Detail')} style={{flex:1,backgroundColor:'white',margin:15,borderRadius:3,marginTop:2,marginBottom:8,padding:15,paddingTop:10,paddingBottom:10,flexDirection:'row',justifyContent:'space-between'}}>
       <View>
         <Text style={{color:colors.dark,fontSize:14,lineHeight:20}}>from:{this._filterShort(item.from)}</Text>
-        <Text style={{color:colors.lightgrey,fontSize:12,ineHeight:20}}>{formatTime(item.timeStamp)}</Text>
+        <Text style={{color:colors.lightgrey,fontSize:12,lineHeight:20}}>{formatTime(item.timeStamp)}</Text>
       </View>
       <View>
         <Text style={{color:colors.dark,fontSize:14,lineHeight:20,color:'#ff9b00'}}>{web3.utils.fromWei(item.value, 'ether')+' ether'}</Text>
-        <Text style={{color:colors.lightgrey,textAlign:'right',fontSize:12,lineHeight:20}}>{item.txreceipt_status}</Text>
+        <Text style={{color:colors.lightgrey,textAlign:'right',fontSize:12,lineHeight:20}}>{this._setState(item.txreceipt_status)}</Text>
         {/* <Text style={index%2 ? styles.style1: styles.style2}>Hello</Text> */}
       </View>
     </TouchableOpacity>

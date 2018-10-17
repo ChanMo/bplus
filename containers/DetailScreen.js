@@ -1,8 +1,5 @@
 import React, {Component} from 'react'
 import {StyleSheet, Dimensions, ImageBackground, Image, View, Text} from 'react-native'
-import Icon from 'react-native-vector-icons/Feather'
-import tokens from '../tokens'
-
 const {width} = Dimensions.get('window')
 
 export default class WalletScreen extends Component {
@@ -18,8 +15,13 @@ export default class WalletScreen extends Component {
   }
 
   componentDidMount() {
-    
+    this._getDetail()
   }
+
+  _getDetail = async() => {
+      var result = await web3.eth.getTransaction('0x37919ca2172d50bdfeced8670b36e03eeb034319dc8af5a63691392a336d4590')
+        console.log(result)
+    }
 
   _renderBody = () => {
     return (
