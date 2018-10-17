@@ -121,7 +121,7 @@ export default class WalletScreen extends Component {
     const status = priceObj ? priceObj.quote.CNY.percent_change_24h.toFixed(2) : 0.00
     const balance = (item.balance * price).toFixed(2)
     return(
-      <TouchableOpacity onPress={()=>this.props.navigation.navigate('Log', {token:item.toString()})}>
+      <TouchableOpacity onPress={()=>this.props.navigation.navigate('Log', {token:item.token})}>
         <View style={styles.item}>
           <Text style={{color:'rgb(78,78,78)'}}>{item.token}</Text>
           <View style={{alignItems:'flex-end'}}>
