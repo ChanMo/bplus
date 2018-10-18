@@ -109,7 +109,7 @@ export default class LogScreen extends Component {
   _renderHeader = () => (
       <ImageBackground source={require('../images/log-bg.png')}
         imageStyle={{}}
-        style={{height:140,lexDirection:'row',justifyContent:'center',}}>
+        style={{height:140,flexDirection:'row',justifyContent:'center',}}>
         <View style={{alignSelf:'center'}}>
           <Text style={{fontSize:28,alignSelf:'center'}}>
             {this.state.balance}</Text>
@@ -123,7 +123,8 @@ export default class LogScreen extends Component {
   _renderItem = ({item, index}) => (
     <TouchableOpacity
       style={styles.logContainer}
-      onPress={()=>this.props.navigation.navigate('Detail')}>
+      onPress={()=>this.props.navigation.navigate('Detail',
+      {hash:item.hash})}>
       <View>
         <Text style={styles.logTitle}>
           from:{this._filterShort(item.from)}</Text>
@@ -189,7 +190,9 @@ export default class LogScreen extends Component {
             ListEmptyComponent={this._renderEmpty}
           />
         ) : (
-          <ActivityIndicator style={{marginTop:50}} />
+          <View style={{flex:1,justifyContent:'center'}}>
+            <ActivityIndicator />
+          </View>
         )}
 
         {this._renderFooter()}

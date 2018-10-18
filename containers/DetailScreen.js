@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
-import {StyleSheet, Dimensions, ImageBackground, Image, View, Text} from 'react-native'
+import {StyleSheet, ActivityIndicator, Dimensions, ImageBackground, Image, View, Text} from 'react-native'
 const {width} = Dimensions.get('window')
+import {formatTime} from '../utils'
 
 export default class WalletScreen extends Component {
   static navigationOptions = {
@@ -9,29 +10,36 @@ export default class WalletScreen extends Component {
 
   constructor(props) {
     super(props)
+    const navigation = props.navigation
     this.state = {
-      
+      hash: navigation.getParam('hash'),
+      transaction: null,
+      block: {}
     }
   }
 
   componentDidMount() {
-    this._getDetail()
+    this._fetchData()
   }
 
-  _getDetail = async() => {
-      var result = await web3.eth.getTransaction('0x37919ca2172d50bdfeced8670b36e03eeb034319dc8af5a63691392a336d4590')
-        console.log(result)
-    }
+  // 获取交易记录详情
+  _fetchData = () => {
+    web3.eth.getTransaction(this.state.hash).then((res) => {
+      this.setState({transaction: res})
+      web3.eth.getBlock(res.blockHash).then((ress) => this.setState({block: ress}))
+    })
+  }
 
   _renderBody = () => {
     return (
       <View style={styles.box}>
           <View style={styles.boxHeader}>
             <View style={{alignSelf:'center'}}>
-                <Image style={styles.headerImg} source={require('../images/detail-tip.png')}></Image>
+              <Image style={styles.headerImg}
+                source={require('../images/detail-tip.png')}></Image>
             </View>
             <Text style={styles.headerTitle}>收款成功</Text>
-            <Text style={styles.headerTime}>2018年07月19日  10:02</Text>
+            <Text style={styles.headerTime}>{formatTime(this.state.block.timestamp)}</Text>
           </View>
           {this._renderMsg()}
       </View>
@@ -39,48 +47,49 @@ export default class WalletScreen extends Component {
   }
 
   _renderMsg = () =>{
+    const data = this.state.transaction
       return(
         <View style={{padding:20}}>
             <View style={styles.listBox}>
                 <Text style={{width:80,fontSize:14,color:'#1c2562'}}>金额:</Text>
-                <Text style={styles.listRight}>100,000xdc</Text>
+                <Text style={styles.listRight}>{web3.utils.fromWei(data.value, 'ether')}</Text>
             </View>
             <View style={{borderBottomWidth:.4,borderColor:'#808080'}}></View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>旷工费用:</Text>
                 <View style={styles.listRight}>
-                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>UxDbE8801539M25aCq</Text>
-                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>=Gas(53,030)*GasPrice(11.16 gwei)</Text>
+                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>{data.gas*data.gasPrice}</Text>
+                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>=Gas({data.gas})*GasPrice({data.gasPrice} gwei)</Text>
                 </View>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>收款地址:</Text>
-                <Text style={styles.listRight}>UxDbE8801539M25aCq4C020B1Cpp210A</Text>
+                <Text style={styles.listRight}>{data.to}</Text>
                 <View style={styles.listBtnBox}>
                     <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
                 </View>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>付款地址:</Text>
-                <Text style={styles.listRight}>UxDbE8801539M25aCq4C020B1Cpp210A</Text>
+                <Text style={styles.listRight}>{data.from}</Text>
                 <View style={styles.listBtnBox}>
                     <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
                 </View>
             </View>
-            <View style={styles.listBox}>
+            {/*<View style={styles.listBox}>
                 <Text style={styles.listLeft}>备注:</Text>
                 <Text style={styles.listRight}>我是备注</Text>
-            </View>
+              </View>*/}
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>交易号:</Text>
-                <Text style={styles.listRight}>awodwadidiawdjiawdj</Text>
+                <Text style={styles.listRight}>{data.hash}</Text>
                 <View style={styles.listBtnBox}>
                     <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
                 </View>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>区块:</Text>
-                <Text style={styles.listRight}>6986143</Text>
+                <Text style={styles.listRight}>{data.blockNumber}</Text>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>订单二维码:</Text>
@@ -93,13 +102,16 @@ export default class WalletScreen extends Component {
   }
 
   render() {
+    if(!this.state.transaction) {
+      return <ActivityIndicator style={{marginTop:20}} />
+    }
     return (
-        <ImageBackground
-            source={require('../images/wallet-bg.png')}
-            imageStyle={{width:width,height:320,marginTop:-74}}
-            style={{width:'100%',height:'100%',justifyContent:'center',backgroundColor:'rgb(245,243,251)'}}>
-            {this._renderBody()}
-        </ImageBackground>
+      <ImageBackground
+        source={require('../images/wallet-bg.png')}
+        imageStyle={{width:width,height:320,marginTop:-74}}
+        style={{width:'100%',height:'100%',justifyContent:'center',backgroundColor:'rgb(245,243,251)'}}>
+        {this._renderBody()}
+      </ImageBackground>
     )
   }
 }
