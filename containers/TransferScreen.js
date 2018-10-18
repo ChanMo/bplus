@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {DeviceEventEmitter, Alert, Modal, TouchableOpacity,ImageBackground, AsyncStorage, StatusBar, StyleSheet, View, TextInput, Text, Button} from 'react-native'
+import {DeviceEventEmitter, Alert, Modal, TouchableOpacity,ImageBackground, AsyncStorage, StatusBar, StyleSheet, View, TextInput, Text, Button,Slider} from 'react-native'
 import colors from '../colors'
 
 const ethTx = require('ethereumjs-tx')
@@ -22,6 +22,7 @@ export default class TransferScreen extends Component {
       modalVisible: false,
       password: null,
       gasPrice: "0",
+      sliderVal:0
     }
   }
 
@@ -107,6 +108,12 @@ export default class TransferScreen extends Component {
     //web3.eth.signTransaction(data, this.state.password)
     //  .then((res)=>web3.eth.sendSignedTransaction(res.raw).on('receipt', console.log))
     //  .catch((error)=>Alert.alert(error.toString()))
+  }
+
+  _slider = (value)=>{
+    this.setState({
+      sliderVal:value
+    })
   }
 
   _renderButton = () => {
@@ -224,10 +231,18 @@ export default class TransferScreen extends Component {
 
           <View style={{display:'flex',flexDirection:'row',padding:10,paddingTop:5}}>
             <Text style={styles.label}>旷工费用:</Text>
-            <Text style={{flex:1,lineHeight:30,textAlign:'right',color:'#808080'}}>0.00002324ether</Text>
+            <Text style={{flex:1,lineHeight:30,textAlign:'right',color:'#808080'}}>{this.state.sliderVal}ether</Text>
+          </View>
+          <Slider value={this.state.sliderVal} 
+          onValueChange={(value)=>this._slider(value)}
+          minimumValue={1}
+          maximumValue={600000}
+          step={1}></Slider>
+          <View style={{display:'flex',flexDirection:'row',padding:5}}>
+            <Text style={{textAlign:'left',flex:1,color:'#212b66'}}>慢</Text>
+            <Text style={{textAlign:'right',flex:1,color:'#212b66'}}>快</Text>
           </View>
         </View>
-
         {this._renderButton()}
       </View>
     )

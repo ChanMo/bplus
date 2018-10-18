@@ -1,6 +1,11 @@
 import React, {Component} from 'react'
-import {StyleSheet, Dimensions, ImageBackground, Image, View, Text} from 'react-native'
+import {StyleSheet, Dimensions, ImageBackground,TouchableOpacity, Image, View, Text,Clipboard,Alert} from 'react-native'
 const {width} = Dimensions.get('window')
+import {formatTime} from '../utils'
+import QRCode from 'react-native-qrcode'
+
+const apikey = 'G1T2IX1V1J157RINVS4H1R7QJ3811Z4D6W'
+const url = 'https://api.etherscan.io/api'
 
 export default class WalletScreen extends Component {
   static navigationOptions = {
@@ -10,7 +15,12 @@ export default class WalletScreen extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      
+      detail:'',
+      gasUsed:'',
+      time:'',
+      num:'',
+      gasPrice:'',
+      detailVal:''
     }
   }
 
@@ -19,8 +29,25 @@ export default class WalletScreen extends Component {
   }
 
   _getDetail = async() => {
-      var result = await web3.eth.getTransaction('0x37919ca2172d50bdfeced8670b36e03eeb034319dc8af5a63691392a336d4590')
-        console.log(result)
+      const hash = this.props.navigation.state.params.hash
+      var transaction = await web3.eth.getTransaction(hash)
+      var transactionReceipt = await web3.eth.getTransactionReceipt(hash)
+      const time = this.props.navigation.state.params.time
+      const num = (transactionReceipt.gasUsed*transaction.gasPrice).toString()
+      console.log(transaction)
+      this.setState({
+            detail:transaction,
+            gasUsed:transactionReceipt.gasUsed,
+            gasPrice:transaction.gasPrice,
+            time:time,
+            num:num,
+            detailVal:transaction.value
+        })
+    }
+
+    _copyText = (value) => {
+        Clipboard.setString(value);
+        Alert.alert('已复制到剪切板')
     }
 
   _renderBody = () => {
@@ -31,7 +58,7 @@ export default class WalletScreen extends Component {
                 <Image style={styles.headerImg} source={require('../images/detail-tip.png')}></Image>
             </View>
             <Text style={styles.headerTitle}>收款成功</Text>
-            <Text style={styles.headerTime}>2018年07月19日  10:02</Text>
+            <Text style={styles.headerTime}>{formatTime(this.state.time)}</Text>
           </View>
           {this._renderMsg()}
       </View>
@@ -43,49 +70,56 @@ export default class WalletScreen extends Component {
         <View style={{padding:20}}>
             <View style={styles.listBox}>
                 <Text style={{width:80,fontSize:14,color:'#1c2562'}}>金额:</Text>
-                <Text style={styles.listRight}>100,000xdc</Text>
+                <Text style={styles.listRight}>{web3.utils.fromWei(this.state.detailVal.toString(),'ether')}{this.props.navigation.getParam('coinName')}</Text>
             </View>
             <View style={{borderBottomWidth:.4,borderColor:'#808080'}}></View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>旷工费用:</Text>
                 <View style={styles.listRight}>
-                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>UxDbE8801539M25aCq</Text>
-                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>=Gas(53,030)*GasPrice(11.16 gwei)</Text>
+                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>{web3.utils.fromWei(this.state.num.toString(), 'ether')} ether</Text>
+                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>=Gas({this.state.gasUsed})*GasPrice({web3.utils.fromWei(this.state.gasPrice.toString(), 'gwei')})</Text>
                 </View>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>收款地址:</Text>
-                <Text style={styles.listRight}>UxDbE8801539M25aCq4C020B1Cpp210A</Text>
-                <View style={styles.listBtnBox}>
+                <Text style={styles.listRight}>{this.state.detail.to}</Text>
+                <TouchableOpacity style={styles.listBtnBox} onPress={()=>this._copyText(this.state.detail.to)}>
                     <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
-                </View>
+                </TouchableOpacity>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>付款地址:</Text>
-                <Text style={styles.listRight}>UxDbE8801539M25aCq4C020B1Cpp210A</Text>
-                <View style={styles.listBtnBox}>
+                <Text style={styles.listRight}>{this.state.detail.from}</Text>
+                <TouchableOpacity style={styles.listBtnBox} onPress={()=>this._copyText(this.state.detail.from)}>
                     <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
-                </View>
+                </TouchableOpacity>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>备注:</Text>
-                <Text style={styles.listRight}>我是备注</Text>
+                <Text style={styles.listRight}>{this.state.detail.input}</Text>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>交易号:</Text>
-                <Text style={styles.listRight}>awodwadidiawdjiawdj</Text>
-                <View style={styles.listBtnBox}>
+                <Text style={styles.listRight}>{this.state.detail.blockNumber}</Text>
+                <TouchableOpacity style={styles.listBtnBox} onPress={()=>this._copyText(this.state.detail.to)}>
                     <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
-                </View>
+                </TouchableOpacity>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>区块:</Text>
-                <Text style={styles.listRight}>6986143</Text>
+                <Text style={styles.listRight}>{this.state.detail.blockNumber}</Text>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>订单二维码:</Text>
                 <View style={styles.listRight}>
-                    <Image style={{height:60,width:60,alignSelf:'flex-end'}} source={require('../images/group.png')}></Image>
+                    <View style={{alignSelf:'flex-end',height:62,width:62,borderWidth:.3,borderColor:'#e1e1e1'}}>
+                        <QRCode
+                            size={60}
+                            value={this.state.detail}
+                            bgColor='#ffffff'
+                            fgColor='black'
+                        />
+                    </View>
                 </View>
             </View>
         </View>
