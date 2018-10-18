@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
-import {StyleSheet, ActivityIndicator, Dimensions, ImageBackground, Image, View, Text} from 'react-native'
+import {StyleSheet, ActivityIndicator, Dimensions, TouchableOpacity, ImageBackground, Image, View, Text, Clipboard,Alert} from 'react-native'
 const {width} = Dimensions.get('window')
 import {formatTime} from '../utils'
+import QRCode from 'react-native-qrcode'
 
 export default class WalletScreen extends Component {
   static navigationOptions = {
@@ -28,6 +29,11 @@ export default class WalletScreen extends Component {
       this.setState({transaction: res})
       web3.eth.getBlock(res.blockHash).then((ress) => this.setState({block: ress}))
     })
+  }
+
+  _copyText = (value) => {
+      Clipboard.setString(value);
+      Alert.alert('已复制到剪切板')
   }
 
   _renderBody = () => {
@@ -65,27 +71,29 @@ export default class WalletScreen extends Component {
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>收款地址:</Text>
                 <Text style={styles.listRight}>{data.to}</Text>
-                <View style={styles.listBtnBox}>
-                    <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
-                </View>
+                <TouchableOpacity
+                  style={styles.listBtnBox}
+                  onPress={()=>this._copyText(data.to)}>
+                  <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
+                </TouchableOpacity>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>付款地址:</Text>
                 <Text style={styles.listRight}>{data.from}</Text>
-                <View style={styles.listBtnBox}>
-                    <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
-                </View>
+                <TouchableOpacity style={styles.listBtnBox} onPress={()=>this._copyText(data.from)}>
+                  <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
+                </TouchableOpacity>
             </View>
-            {/*<View style={styles.listBox}>
+            <View style={styles.listBox}>
                 <Text style={styles.listLeft}>备注:</Text>
-                <Text style={styles.listRight}>我是备注</Text>
-              </View>*/}
+                <Text style={styles.listRight}>{data.input}</Text>
+            </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>交易号:</Text>
                 <Text style={styles.listRight}>{data.hash}</Text>
-                <View style={styles.listBtnBox}>
+                <TouchableOpacity style={styles.listBtnBox} onPress={()=>this._copyText(data.hash)}>
                     <Image style={styles.listBtn} source={require('../images/detail-copy.png')}></Image>
-                </View>
+                </TouchableOpacity>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>区块:</Text>
@@ -94,7 +102,14 @@ export default class WalletScreen extends Component {
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>订单二维码:</Text>
                 <View style={styles.listRight}>
-                    <Image style={{height:60,width:60,alignSelf:'flex-end'}} source={require('../images/group.png')}></Image>
+                    <View style={{alignSelf:'flex-end',height:62,width:62,borderWidth:.3,borderColor:'#e1e1e1'}}>
+                        <QRCode
+                            size={60}
+                            value={this.state.detail}
+                            bgColor='#ffffff'
+                            fgColor='black'
+                        />
+                    </View>
                 </View>
             </View>
         </View>
