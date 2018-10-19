@@ -15,7 +15,8 @@ export default class WalletScreen extends Component {
     this.state = {
       hash: navigation.getParam('hash'),
       transaction: null,
-      block: {}
+      block: {},
+      gasUsed:'',
     }
   }
 
@@ -28,6 +29,9 @@ export default class WalletScreen extends Component {
     web3.eth.getTransaction(this.state.hash).then((res) => {
       this.setState({transaction: res})
       web3.eth.getBlock(res.blockHash).then((ress) => this.setState({block: ress}))
+    })
+    web3.eth.getTransactionReceipt(this.state.hash).then((res) => {
+        this.setState({gasUsed:res.gasUsed})
     })
   }
 
@@ -64,8 +68,8 @@ export default class WalletScreen extends Component {
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>旷工费用:</Text>
                 <View style={styles.listRight}>
-                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>{data.gas*data.gasPrice}</Text>
-                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>=Gas({data.gas})*GasPrice({data.gasPrice} gwei)</Text>
+                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>{web3.utils.fromWei((this.state.gasUsed*data.gasPrice).toString(),'ether')}</Text>
+                    <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>=Gas({this.state.gasUsed})*GasPrice({web3.utils.fromWei(data.gasPrice,'gwei')} gwei)</Text>
                 </View>
             </View>
             <View style={styles.listBox}>
@@ -105,7 +109,7 @@ export default class WalletScreen extends Component {
                     <View style={{alignSelf:'flex-end',height:62,width:62,borderWidth:.3,borderColor:'#e1e1e1'}}>
                         <QRCode
                             size={60}
-                            value={this.state.detail}
+                            value={'222'}
                             bgColor='#ffffff'
                             fgColor='black'
                         />

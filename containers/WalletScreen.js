@@ -18,6 +18,7 @@ export default class WalletScreen extends Component {
       refreshing: false,
       coins: [], // 用户收藏token
       prices: [], // 市场价格列表
+      popShow:false
     }
   }
 
@@ -79,9 +80,29 @@ export default class WalletScreen extends Component {
           <Text style={{color:'red'}}>未连接</Text>
         )}
       </View>
-      <Icon name='maximize' size={20} color='white' />
+      <TouchableOpacity onPress={()=>{this.setState({popShow:!this.state.popShow})}}>
+        <Icon name='plus' size={26} color='white' />
+      </TouchableOpacity>
     </View>
   )
+
+  _renderPop = () =>{
+    return(
+      <ImageBackground
+      style={{height:90,width:140,position:'absolute',zIndex:9999,top:64,right:10,display:this.state.popShow?'flex':'none'}}
+      source={require('../images/pop-up.png')}
+      imageStyle={{width:140,height:90}}>
+        <TouchableOpacity  onPress={()=>this.props.navigation.navigate('CoinList')} style={{padding:6,paddingLeft:25,marginTop:14,display:'flex',flexDirection:'row'}}>
+          <Icon name='plus' size={20} color='#808080' />
+          <Text style={{flex:1,lineHeight:20,paddingLeft:5,color:'#808080'}}>添加资产</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{padding:6,paddingLeft:25,marginTop:6,display:'flex',flexDirection:'row'}}>
+          <Icon name='maximize' size={20} color='#808080' />
+          <Text style={{flex:1,lineHeight:20,paddingLeft:5,color:'#808080'}}>扫一扫</Text>
+        </TouchableOpacity>
+    </ImageBackground>
+    )
+  }
 
   _renderMain = () => {
     return (
@@ -165,6 +186,7 @@ export default class WalletScreen extends Component {
           imageStyle={{width:width,height:width*5/6}}
           style={{width:'100%',height:'100%'}}>
           {this._renderHeader()}
+          {this._renderPop()}
           <ScrollView
             refreshControl={
             <RefreshControl
@@ -173,11 +195,6 @@ export default class WalletScreen extends Component {
             }>
             {this._renderMain()}
             {this._renderToken()}
-            <TouchableOpacity
-              onPress={()=>this.props.navigation.navigate('CoinList')}
-              style={{alignItems:'center',paddingVertical:10}}>
-              <Text>管理币种</Text>
-            </TouchableOpacity>
           </ScrollView>
         </ImageBackground>
       </View>
