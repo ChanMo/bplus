@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {AsyncStorage, ToastAndroid, Clipboard,TouchableOpacity,Alert, StatusBar,TextInput, View, Text, Button} from 'react-native'
-import QRCode from 'react-native-qrcode'
+import QRCode from 'react-native-qrcode-svg'
 import colors from '../colors'
 
 export default class ReceiptScreen extends Component {

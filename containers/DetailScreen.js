@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {StyleSheet, ActivityIndicator, Dimensions, TouchableOpacity, ImageBackground, Image, View, Text, Clipboard,Alert} from 'react-native'
 const {width} = Dimensions.get('window')
 import {formatTime} from '../utils'
-import QRCode from 'react-native-qrcode'
+import QRCode from 'react-native-qrcode-svg'
 
 export default class WalletScreen extends Component {
   static navigationOptions = {
