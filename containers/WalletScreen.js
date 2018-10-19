@@ -80,7 +80,7 @@ export default class WalletScreen extends Component {
           <Text style={{color:'red'}}>未连接</Text>
         )}
       </View>
-      <TouchableOpacity onPress={()=>{this.setState({popShow:!this.state.popShow})}}>
+      <TouchableOpacity onPress={()=>{this.setState({popShow:true})}}>
         <Icon name='plus' size={26} color='white' />
       </TouchableOpacity>
     </View>
@@ -88,19 +88,25 @@ export default class WalletScreen extends Component {
 
   _renderPop = () =>{
     return(
-      <ImageBackground
-      style={{height:90,width:140,position:'absolute',zIndex:9999,top:64,right:10,display:this.state.popShow?'flex':'none'}}
-      source={require('../images/pop-up.png')}
-      imageStyle={{width:140,height:90}}>
-        <TouchableOpacity  onPress={()=>this.props.navigation.navigate('CoinList')} style={{padding:6,paddingLeft:25,marginTop:14,display:'flex',flexDirection:'row'}}>
-          <Icon name='plus' size={20} color='#808080' />
-          <Text style={{flex:1,lineHeight:20,paddingLeft:5,color:'#808080'}}>添加资产</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{padding:6,paddingLeft:25,marginTop:6,display:'flex',flexDirection:'row'}}>
-          <Icon name='maximize' size={20} color='#808080' />
-          <Text style={{flex:1,lineHeight:20,paddingLeft:5,color:'#808080'}}>扫一扫</Text>
-        </TouchableOpacity>
-    </ImageBackground>
+      <View style={{height:'100%',width:'100%',position:'absolute',zIndex:9999,display:this.state.popShow?'flex':'none'}}>
+          <TouchableOpacity  onPress={()=>{this.setState({popShow:false})}} style={{position:'absolute',zIndex:0,height:'100%',width:'100%'}}>
+
+          </TouchableOpacity>
+          <ImageBackground
+            style={{height:90,width:140,position:'absolute',top:64,right:10}}
+            source={require('../images/pop-up.png')}
+            imageStyle={{width:140,height:90}}>
+              <TouchableOpacity  onPress={()=>this.props.navigation.navigate('CoinList')} style={{padding:6,paddingLeft:25,marginTop:14,display:'flex',flexDirection:'row'}}>
+                <Icon name='plus' size={20} color='#808080' />
+                <Text style={{flex:1,lineHeight:20,paddingLeft:5,color:'#808080'}}>添加资产</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{padding:6,paddingLeft:25,marginTop:6,display:'flex',flexDirection:'row'}}>
+                <Icon name='maximize' size={20} color='#808080' />
+                <Text style={{flex:1,lineHeight:20,paddingLeft:5,color:'#808080'}}>扫一扫</Text>
+              </TouchableOpacity>
+          </ImageBackground>
+      </View>
+      
     )
   }
 
