@@ -76,7 +76,7 @@ export default class LogScreen extends Component {
 
   // 获取交易记录
   _fetchLog = () => {
-    let curl = url + `?module=account&action=txlist&address=${this.state.account}&startblock=0&endblock=99999999&sort=asc&apikey=${apikey}`
+    let curl = url + `?module=account&action=txlist&address=${this.state.account}&startblock=0&endblock=99999999&sort=desc&apikey=${apikey}`
     return fetch(curl)
       .then((response) => response.json())
       .then((responseJson) => {
@@ -111,17 +111,17 @@ export default class LogScreen extends Component {
 
   _keyExtractor = (item,i) => i.toString()
 
-  //列表倒序
-  _reverse = (obj) => {
-    let arr = []
-    for(let i in obj){
-      arr.push(obj[i])
-    }
-    for (let i in obj) {
-      obj[i] = arr[obj.length-1-i]
-    }
-    return obj;
-  }
+  // //列表倒序
+  // _reverse = (obj) => {
+  //   let arr = []
+  //   for(let i in obj){
+  //     arr.push(obj[i])
+  //   }
+  //   for (let i in obj) {
+  //     obj[i] = arr[obj.length-1-i]
+  //   }
+  //   return obj;
+  // }
 
   _renderHeader = () => (
       <ImageBackground source={require('../images/log-bg.png')}
@@ -199,7 +199,7 @@ export default class LogScreen extends Component {
         {!this.state.fetching ? (
           <FlatList
             style={{paddingTop:10,paddingBottom:10}}
-            data={this._reverse(this.state.logs)}
+            data={this.state.logs}
             keyExtractor={this._keyExtractor}
             renderItem={this._renderItem}
             refreshControl={
