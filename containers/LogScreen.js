@@ -5,6 +5,9 @@ import colors from '../colors'
 import {getBalance, formatTime,getCoinsValData} from '../utils'
 import { deflate } from 'zlib';
 
+const Web3 = require('web3')
+let web3 = new Web3('http://47.94.206.167:8545');
+
 const apikey = 'G1T2IX1V1J157RINVS4H1R7QJ3811Z4D6W'
 const url = 'https://api.etherscan.io/api'
 
@@ -62,7 +65,8 @@ export default class LogScreen extends Component {
 
   // 获取资产
   _getBalance() {
-    this.setState({balance: getBalance(this.state.account, this.state.token)})
+    //this.setState({balance: getBalance(this.state.account, this.state.token)})
+    web3.eth.getBalance(this.state.account).then(res => this.setState({balance: web3.utils.fromWei(res, 'ether')}))
   }
 
   _onRefresh = () => {
