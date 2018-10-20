@@ -40,8 +40,8 @@ export default class PasswordScreen extends Component {
       Alert.alert('密码错误')
     } else {
       DeviceEventEmitter.emit('check_password_pass')
-      // this.props.navigation.goBack()
-      this.props.navigation.navigate(this.state.to)
+      this.props.navigation.goBack()
+      //this.props.navigation.navigate(this.state.to)
     }
   }
 
