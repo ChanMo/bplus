@@ -49,7 +49,7 @@ export default class PasswordScreen extends Component {
   }
 
   _renderHeader = () => (
-    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',elevation:3,marginTop:20,shadowColor:'grey',shadowOffset:{width:0,height:2,shadowOpacity:1,shadowRadius:1}}}>
+    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',marginTop:20}}>
       <TouchableOpacity
         style={{flex:1.7,paddingLeft:15}}
         onPress={()=>this.props.navigation.goBack()}>
