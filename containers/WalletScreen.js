@@ -88,7 +88,7 @@ export default class WalletScreen extends Component {
 
   _renderPop = () =>{
     return(
-      <View style={{height:'100%',width:'100%',position:'absolute',zIndex:9999,display:this.state.popShow?'flex':'none'}}>
+      <View style={{height:'100%',width:'100%',position:'absolute',zIndex:9999}}>
           <TouchableOpacity  onPress={()=>{this.setState({popShow:false})}} style={{position:'absolute',zIndex:0,height:'100%',width:'100%'}}>
 
           </TouchableOpacity>
@@ -192,7 +192,7 @@ export default class WalletScreen extends Component {
           imageStyle={{width:width,height:width*5/6}}
           style={{width:'100%',height:'100%'}}>
           {this._renderHeader()}
-          {this._renderPop()}
+          {this.state.popShow?this._renderPop():<View></View>}
           <ScrollView
             refreshControl={
             <RefreshControl
