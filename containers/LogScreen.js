@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {RefreshControl, ActivityIndicator,Dimensions,ImageBackground, Alert, AsyncStorage,StyleSheet, TouchableOpacity, FlatList, View, Text} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 import colors from '../colors'
-import {getBalance, formatTime,getCoinsValData} from '../utils'
+import {getBalance, formatTime, formatBalance, getCoinsValData} from '../utils'
 import { deflate } from 'zlib';
 
 const Web3 = require('web3')
@@ -129,7 +129,7 @@ export default class LogScreen extends Component {
         style={{height:140,flexDirection:'row',justifyContent:'center',}}>
         <View style={{alignSelf:'center'}}>
           <Text style={{fontSize:28,alignSelf:'center'}}>
-            {this.state.balance}</Text>
+            {formatBalance(this.state.balance, 4)}</Text>
           <Text style={{fontSize:16,alignSelf:'center'}}>
             ≈¥{(this.state.balance*this.state.coinTran).toFixed(2)}
             </Text>
