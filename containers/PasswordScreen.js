@@ -43,8 +43,8 @@ export default class PasswordScreen extends Component {
     if (value !== this.state.password) {
       Alert.alert('密码错误')
     } else {
-      DeviceEventEmitter.emit(this.props.navigation.getParam('event')) 
-      // this.props.navigation.goBack()
+      DeviceEventEmitter.emit(this.props.navigation.getParam('event'))
+      this.props.navigation.goBack()
     }
   }
 
