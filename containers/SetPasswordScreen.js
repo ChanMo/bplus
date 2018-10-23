@@ -63,7 +63,7 @@ export default class SetPasswordScreen extends Component {
 
 
   _renderHeader = () => (
-    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',elevation:3,marginTop:20,shadowColor:'grey',shadowOffset:{width:0,height:2,shadowOpacity:1,shadowRadius:1}}}>
+    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',marginTop:20}}>
       <View style={{flex:6.6,alignItems:'flex-start'}}>
         <Text style={{fontSize:16,color:'#212B66',fontWeight:'bold',paddingLeft:30}}>
           {this.state.changeTip}
