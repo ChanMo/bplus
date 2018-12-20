@@ -2,8 +2,11 @@ import React, {Component} from 'react'
 import {RefreshControl, ActivityIndicator,Dimensions,ImageBackground, Alert, AsyncStorage,StyleSheet, TouchableOpacity, FlatList, View, Text} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 import colors from '../colors'
-import {getBalance, formatTime,getCoinsValData} from '../utils'
+import {getBalance, formatTime, formatBalance, getCoinsValData} from '../utils'
 import { deflate } from 'zlib';
+
+const Web3 = require('web3')
+let web3 = new Web3('http://47.94.206.167:8545');
 
 const apikey = 'G1T2IX1V1J157RINVS4H1R7QJ3811Z4D6W'
 const url = 'https://api.etherscan.io/api'
@@ -30,7 +33,7 @@ export default class LogScreen extends Component {
 
   componentDidMount() {
     this.setState({token: this.props.navigation.getParam('token')})
-    this._getCoinsValData("ETH")
+    this._getCoinsValData(this.props.navigation.getParam('token'))
     this._getAccount()
   }
 
@@ -55,14 +58,15 @@ export default class LogScreen extends Component {
   // 获取账户
   _getAccount = async() => {
     const account = await AsyncStorage.getItem('account')
-    this.setState({account:account})
+    this.setState({account:account.toLowerCase()})
     this._getBalance()
     this._fetchLog()
   }
 
   // 获取资产
   _getBalance() {
-    this.setState({balance: getBalance(this.state.account, this.state.token)})
+    //this.setState({balance: getBalance(this.state.account, this.state.token)})
+    web3.eth.getBalance(this.state.account).then(res => this.setState({balance: web3.utils.fromWei(res, 'ether')}))
   }
 
   _onRefresh = () => {
@@ -72,10 +76,11 @@ export default class LogScreen extends Component {
 
   // 获取交易记录
   _fetchLog = () => {
-    let curl = url + `?module=account&action=txlist&address=${this.state.account}&startblock=0&endblock=99999999&sort=asc&apikey=${apikey}`
+    let curl = url + `?module=account&action=txlist&address=${this.state.account}&startblock=0&endblock=99999999&sort=desc&apikey=${apikey}`
     return fetch(curl)
       .then((response) => response.json())
       .then((responseJson) => {
+        // console.log(responseJson)
         if(responseJson.status == '1') {
           this.setState({logs:responseJson.result})
         } else {
@@ -98,7 +103,7 @@ export default class LogScreen extends Component {
       case '0':
       return '打包失败'
       case '1':
-      return '打包完成'
+      return ''
       case '2':
       return '打包中'
     }
@@ -106,15 +111,28 @@ export default class LogScreen extends Component {
 
   _keyExtractor = (item,i) => i.toString()
 
+  // //列表倒序
+  // _reverse = (obj) => {
+  //   let arr = []
+  //   for(let i in obj){
+  //     arr.push(obj[i])
+  //   }
+  //   for (let i in obj) {
+  //     obj[i] = arr[obj.length-1-i]
+  //   }
+  //   return obj;
+  // }
+
   _renderHeader = () => (
       <ImageBackground source={require('../images/log-bg.png')}
         imageStyle={{}}
-        style={{height:140,lexDirection:'row',justifyContent:'center',}}>
+        style={{height:140,flexDirection:'row',justifyContent:'center',}}>
         <View style={{alignSelf:'center'}}>
           <Text style={{fontSize:28,alignSelf:'center'}}>
-            {this.state.balance}</Text>
+            {formatBalance(this.state.balance, 4)}</Text>
           <Text style={{fontSize:16,alignSelf:'center'}}>
-            ≈¥{(this.state.balance*this.state.coinTran).toFixed(2)}</Text>
+            ≈¥{(this.state.balance*this.state.coinTran).toFixed(2)}
+            </Text>
         </View>
       </ImageBackground>
   )
@@ -123,15 +141,18 @@ export default class LogScreen extends Component {
   _renderItem = ({item, index}) => (
     <TouchableOpacity
       style={styles.logContainer}
-      onPress={()=>this.props.navigation.navigate('Detail')}>
+      onPress={()=>this.props.navigation.navigate('Detail',
+      {hash:item.hash})}>
+      <View style={{height:'100%',width:4,backgroundColor:this.state.account==item.from?'#e40006':'#499f04',position:'absolute',marginTop:10,borderTopRightRadius:4,borderBottomRightRadius:4}}></View>
       <View>
         <Text style={styles.logTitle}>
-          from:{this._filterShort(item.from)}</Text>
+          {this._filterShort(this.state.account==item.from?item.to:item.from)}</Text>
         <Text style={styles.logDate}>
           {formatTime(item.timeStamp)}</Text>
       </View>
       <View>
-        <Text style={styles.logBalance}>
+        <Text style={this.state.account==item.from?styles.logBalanceOrange:styles.logBalanceBlue}>
+          {this.state.account==item.from? '-':'+'}
           {web3.utils.fromWei(item.value, 'ether')+' ether'}</Text>
         <Text style={styles.logStatus}>
           {this._setState(item.txreceipt_status)}</Text>
@@ -189,7 +210,9 @@ export default class LogScreen extends Component {
             ListEmptyComponent={this._renderEmpty}
           />
         ) : (
-          <ActivityIndicator style={{marginTop:50}} />
+          <View style={{flex:1,justifyContent:'center'}}>
+            <ActivityIndicator />
+          </View>
         )}
 
         {this._renderFooter()}
@@ -205,6 +228,7 @@ const styles = StyleSheet.create({
   logContainer: {
     flex:1,
     backgroundColor:'white',
+    position:'relative',
     margin:15,
     borderRadius:3
     ,marginTop:2,
@@ -225,10 +249,15 @@ const styles = StyleSheet.create({
     fontSize:12,
     lineHeight:20
   },
-  logBalance: {
+  logBalanceOrange: {
     fontSize:14,
     lineHeight:20,
     color:'#ff9b00'
+  },
+  logBalanceBlue: {
+    fontSize:14,
+    lineHeight:20,
+    color:'#212b66'
   },
   logStatus: {
     color:colors.lightgrey,

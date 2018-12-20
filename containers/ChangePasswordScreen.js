@@ -1,9 +1,12 @@
 import React, {Component} from 'react'
-import {Alert, StyleSheet, AsyncStorage , TouchableOpacity, View, TextInput, Text, ImageBackground} from 'react-native'
+import {DeviceEventEmitter,Alert, StyleSheet, AsyncStorage , TouchableOpacity, View, TextInput, Text, ImageBackground} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 import colors from '../colors'
 
 export default class PasswordScreen extends Component {
+  static navigationOptions = {
+    title: '钱包工具'
+  }
   constructor(props) {
     super(props)
     this.state = {
@@ -72,14 +75,15 @@ export default class PasswordScreen extends Component {
           else{
             await AsyncStorage.setItem('password', value)
             Alert.alert('密码修改成功')
-            this.props.navigation.navigate(this.state.to)
+            DeviceEventEmitter.emit('check_password_pass')
+            this.props.navigation.goBack()
           }
         break;
       }
   }
 
   _renderHeader = () => (
-    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',elevation:3,marginTop:20,shadowColor:'grey',shadowOffset:{width:0,height:2,shadowOpacity:1,shadowRadius:1}}}>
+    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',marginTop:20}}>
       <View style={{flex:6.6,alignItems:'flex-start'}}>
         <Text style={{fontSize:16,color:'#212B66',fontWeight:'bold',paddingLeft:30}}>
           {this.state.changeTip}

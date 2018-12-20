@@ -10,15 +10,19 @@ export default class PasswordScreen extends Component {
       password: null,
       input: '',
       valid: false,
-      fetching: false,
-      to: null
+      fetching: false
     }
   }
 
   componentDidMount() {
-    let to = this.props.navigation.getParam('to')
-    this.setState({to:to})
     this._getPassword()
+
+    DeviceEventEmitter.addListener('back_ups',
+      (e)=>this.props.navigation.navigate('Backups'))
+    DeviceEventEmitter.addListener('derived_key',
+      (e)=>this.props.navigation.navigate('DerivedKey'))
+    DeviceEventEmitter.addListener('delet_hint',
+      (e)=>this.props.navigation.navigate('DelectHint'))
   }
 
   _getPassword = async() => {
@@ -39,14 +43,13 @@ export default class PasswordScreen extends Component {
     if (value !== this.state.password) {
       Alert.alert('密码错误')
     } else {
-      DeviceEventEmitter.emit('check_password_pass')
-      // this.props.navigation.goBack()
-      this.props.navigation.navigate(this.state.to)
+      DeviceEventEmitter.emit(this.props.navigation.getParam('event'))
+      this.props.navigation.goBack()
     }
   }
 
   _renderHeader = () => (
-    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',elevation:3,marginTop:20,shadowColor:'grey',shadowOffset:{width:0,height:2,shadowOpacity:1,shadowRadius:1}}}>
+    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',marginTop:20}}>
       <TouchableOpacity
         style={{flex:1.7,paddingLeft:15}}
         onPress={()=>this.props.navigation.goBack()}>
