@@ -1137,7 +1137,7 @@
 			remoteRef = ADBDB9261DFEBF0700ED6528 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		E7BB9A052179735B0065B6C0 /* libRNSVG.a */ = {
+		E7BB9A052179735B0065B6C0 /*  */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libRNSVG.a;

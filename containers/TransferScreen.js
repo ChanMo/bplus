@@ -146,7 +146,7 @@ export default class TransferScreen extends Component {
 
   render() {
     return (
-      <View style={{flex:1,padding:10}}>
+      <View style={{flex:1,padding:10,backgroundColor:'#f6f7fb'}}>
         <StatusBar translucent={false} barStyle='dark-content' />
         <Modal
           animationType="slide"
