@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import {StatusBar, Platform, StyleSheet, Text, View} from 'react-native'
 import { createSwitchNavigator, createStackNavigator } from 'react-navigation'
-// import BackgroundTask from './service'
 import tokens from './tokens'
 import {getMarketData} from './utils'
 
@@ -99,10 +98,6 @@ const MainStack = createStackNavigator({
 
 export default class App extends Component {
   componentDidMount() {
-    //BackgroundTask.schedule({
-    //  period: 1800,
-    //})
-    //this.checkStatus()
   }
   // 设置市场价格
   _setMarketData = async() => {
