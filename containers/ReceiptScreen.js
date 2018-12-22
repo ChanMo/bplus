@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {AsyncStorage, ToastAndroid, Clipboard,TouchableOpacity,Alert, StatusBar,TextInput, View, Text, Button} from 'react-native'
-import QRCode from 'react-native-qrcode-svg'
+//import QRCode from 'react-native-qrcode-svg'
 import colors from '../colors'
 
 export default class ReceiptScreen extends Component {
@@ -49,12 +49,12 @@ export default class ReceiptScreen extends Component {
           {this.state.account}
         </Text>
         <View style={{marginBottom:26,padding:15,backgroundColor:'white'}}>
-          <QRCode
+          {/**<QRCode
             size={280}
             value={this.state.account}
             bgColor='white'
             fgColor='black'
-          />
+          />**/}
         </View>
         <TouchableOpacity onPress={this._copyAddress} style={{borderWidth:.4,padding:10,backgroundColor:'#f9f9f9',fontSize:12}}>
           <Text style={{color:'rgb(78,78,78)'}}>复制收款地址</Text>

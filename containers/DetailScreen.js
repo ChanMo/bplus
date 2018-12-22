@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import {StyleSheet, ActivityIndicator, Dimensions, TouchableOpacity, ImageBackground, Image, View, Text, Clipboard,Alert} from 'react-native'
 const {width} = Dimensions.get('window')
 import {formatTime} from '../utils'
-import QRCode from 'react-native-qrcode-svg'
 
 export default class WalletScreen extends Component {
   static navigationOptions = {
@@ -107,12 +106,12 @@ export default class WalletScreen extends Component {
                 <Text style={styles.listLeft}>订单二维码:</Text>
                 <View style={styles.listRight}>
                     <View style={{alignSelf:'flex-end',height:62,width:62,borderWidth:.3,borderColor:'#e1e1e1'}}>
-                        <QRCode
+                      {/**<QRCode
                             size={60}
                             value={'222'}
                             bgColor='#ffffff'
                             fgColor='black'
-                        />
+                        />**/}
                     </View>
                 </View>
             </View>
