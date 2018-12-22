@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {StyleSheet, Dimensions,TouchableOpacity, ImageBackground, Image, View, Text, Button} from 'react-native'
-const {width} = Dimensions.get('window')
+const {width,height} = Dimensions.get('window')
 
 export default class WelcomeScreen extends Component {
   static navigationOptions = {
@@ -12,8 +12,7 @@ export default class WelcomeScreen extends Component {
     return (
         <ImageBackground
           style={styles.container}
-          imageStyle={{width:width,height:'100%',flex:1,marginTop:'67%'}}
-          resizeMode='contain'
+          imageStyle={{width:width,height:260,marginTop:height-260}}
           source={require('../images/welcoemBackimg.png')}>
             <Image
               style={{width:136,height:136,marginBottom:20}}
