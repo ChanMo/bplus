@@ -4,9 +4,7 @@
 
 ## APP截图
 
-![Welcome](./welcome.png)
-![Home](./home.jpg)
-![User](./user.png)
+![Screenshort](./screenshot.png)
 
 ## 模块依赖
 
