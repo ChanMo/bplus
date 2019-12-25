@@ -2,6 +2,12 @@
 
 使用ReactNative v0.56.0进行开发.
 
+## APP截图
+
+![Welcome](./welcome.png)
+![Home](./home.jpg)
+![User](./user.png)
+
 ## 模块依赖
 
 * react-native v0.56.0
