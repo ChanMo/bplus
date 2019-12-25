@@ -1,11 +1,17 @@
 import React, {Component} from 'react'
-import {DeviceEventEmitter,Alert, StyleSheet, AsyncStorage , TouchableOpacity, View, TextInput, Text, ImageBackground} from 'react-native'
-import Icon from 'react-native-vector-icons/Feather'
-import colors from '../colors'
+import {DeviceEventEmitter, View, TextInput, Text} from 'react-native'
+import * as Keychain from 'react-native-keychain';
+const dismissKeyboard = require('dismissKeyboard'); 
+import Toast from 'react-native-simple-toast'
 
 export default class PasswordScreen extends Component {
   static navigationOptions = {
-    title: '钱包工具'
+    title: '钱包工具',
+    headerStyle:{
+        borderBottomWidth:0,
+        shadowOpacity:0,
+        elevation:0,
+    }
   }
   constructor(props) {
     super(props)
@@ -28,8 +34,16 @@ export default class PasswordScreen extends Component {
   }
 
   _getPassword = async() => {
-    const password = await AsyncStorage.getItem('password')
-    this.setState({password: password})
+    try {
+      const credentials = await Keychain.getGenericPassword();
+      if (credentials) {
+        this.setState({password: credentials.password})
+      } else {
+        console.log('No credentials stored')
+      }
+    } catch (error) {
+      console.log('Keychain couldn\'t be accessed!', error);
+    }
   }
 
   _setPassword(value) {
@@ -45,7 +59,10 @@ export default class PasswordScreen extends Component {
       switch(passwordState){
         case 0:
         if (value !== this.state.password) {
-          Alert.alert('密码错误')
+          this.setState({
+            input: '',
+          })
+          Toast.show('密码错误',1)
         }
         else{
           this.setState({
@@ -57,7 +74,10 @@ export default class PasswordScreen extends Component {
         break;
         case 1:
         if (value == this.state.password) {
-          Alert.alert('新旧密码相同，请修改新密码')
+          this.setState({
+            input: '',
+          })
+          Toast.show('新旧密码相同，请修改新密码',1)
         }
         else{
           this.setState({
@@ -70,11 +90,17 @@ export default class PasswordScreen extends Component {
         break;
         case 2:
           if (value !== this.state.newPassword) {
-            Alert.alert('两次密码不一致，请重新输入')
+            this.setState({
+              input: '',
+            })
+            Toast.show('两次密码不一致，请重新输入',1)
           }
           else{
-            await AsyncStorage.setItem('password', value)
-            Alert.alert('密码修改成功')
+            await Keychain.resetGenericPassword()
+            const username = 'username'
+            const password = this.state.newPassword
+            await Keychain.setGenericPassword(username,password)
+            Toast.show('密码修改成功',1)
             DeviceEventEmitter.emit('check_password_pass')
             this.props.navigation.goBack()
           }
@@ -83,7 +109,7 @@ export default class PasswordScreen extends Component {
   }
 
   _renderHeader = () => (
-    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',marginTop:20}}>
+    <View style={{height:44,backgroundColor:'#f6f7fb',alignItems:'center',flexDirection:'row',marginTop:20}}>
       <View style={{flex:6.6,alignItems:'flex-start'}}>
         <Text style={{fontSize:16,color:'#212B66',fontWeight:'bold',paddingLeft:30}}>
           {this.state.changeTip}
@@ -94,6 +120,7 @@ export default class PasswordScreen extends Component {
   )
 
   _getFocus = () =>{
+    dismissKeyboard();
     var passw = this.refs.password;
     passw.focus()
   }
@@ -101,7 +128,7 @@ export default class PasswordScreen extends Component {
   render() {
     const {navigate, goBack} = this.props.navigation
     return (
-      <View style={{flex:1,backgroundColor:'#f5f5f5'}}>
+      <View style={{flex:1,backgroundColor:'#f6f7fb'}}>
         {this._renderHeader()}
         <View style={{flex:1,padding:30}}>
           <View style={styles.input}>
@@ -113,13 +140,15 @@ export default class PasswordScreen extends Component {
               autoFocus={true}
               onChangeText={(value)=>this._setPassword(value)}
               height={0}/>
-            <View style={{display:'flex',flexDirection:'row'}}>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[0]?'*':''}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[1]?'*':''}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[2]?'*':''}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[3]?'*':''}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[4]?'*':''}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[5]?'*':''}</Text>
+            <View style={{alignContent:'center'}}>
+              <View style={{display:'flex',flexDirection:'row',width:290,alignSelf:'center'}}>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[0]?'*':''}</Text>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[1]?'*':''}</Text>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[2]?'*':''}</Text>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[3]?'*':''}</Text>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[4]?'*':''}</Text>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[5]?'*':''}</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -149,7 +178,7 @@ const styles = {
     margin:4,
     borderRadius:5,
     textAlign:'center',
-    lineHeight:50,
+    lineHeight:46,
     fontSize:30,
     backgroundColor:'#ffffff'
   }

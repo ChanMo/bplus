@@ -12,15 +12,15 @@ export default class WelcomeScreen extends Component {
     return (
         <ImageBackground
           style={styles.container}
-          imageStyle={{width:width,height:260,marginTop:height-260}}
+          imageStyle={{width:width,height:260,marginTop:height-230}}
           source={require('../images/welcoemBackimg.png')}>
             <Image
               style={{width:136,height:136,marginBottom:20}}
               source={require('../images/welcomeLogo.png')} />
             <Text style={{marginBottom:110,color:'#212b66',fontSize:18}}>
-              欢迎使用币加</Text>
+              欢迎使用付否</Text>
             <TouchableOpacity
-              onPress={()=>navigate('SetPassword',{to:'CreateWallet'})}
+              onPress={()=>navigate('SetPassword')}
               style={styles.button}>
               <Text style={{textAlign:'center'}}>创建钱包</Text>
             </TouchableOpacity>
@@ -36,7 +36,7 @@ export default class WelcomeScreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor:'#f7f6fc',
+    backgroundColor:'#f6f7fb',
     flex:1,
     alignItems:'center',
     justifyContent:'center'

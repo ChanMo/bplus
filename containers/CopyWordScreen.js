@@ -3,7 +3,12 @@ import {AsyncStorage,ImageBackground,FlatList, TouchableOpacity, View, Text,Dime
 
 export default class UserScreen extends Component {
     static navigationOptions = {
-        title: '钱包备份'
+        title: '钱包备份',
+        headerStyle:{
+            borderBottomWidth:0,
+            shadowOpacity:0,
+            elevation:0,
+        }
     }
     constructor(props) {
         super(props)
@@ -28,13 +33,13 @@ export default class UserScreen extends Component {
 
   render() {
     return (
-      <View style={{flex:1,backgroundColor:'#f7f6fc',paddingLeft:10,paddingRight:10}}>
+      <View style={{flex:1,backgroundColor:'#f6f7fb',paddingLeft:10,paddingRight:10}}>
         <Text style={{color:'#212b66',fontSize:16,fontWeight:'bold',paddingTop:20,textAlign:'center'}}>立即备份你的助记词</Text>
         <Text style={{fontSize:14,color:'#808080',paddingTop:24,lineHeight:18,textAlign:'center'}}>助记词用于恢复钱包重置密码，抄写到纸上，并保存在安全对地方，不要保存在网络上</Text>
         <View style={{backgroundColor:'#ffffff',height:140,marginTop:30,padding:5,borderRadius:5,display:"flex",flexDirection:'row',flexWrap:'wrap'}}>
             {this.state.words.map((item,index)=>{
                 return(
-                    <Text style={{padding:5}}>{item}</Text>
+                    <Text key={index} style={{padding:5}}>{item}</Text>
                 )
             })}
         </View>

@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
 import {View, AsyncStorage, ActivityIndicator} from 'react-native'
+import { connect } from 'react-redux'
 
-export default class AuthLoadingScreen extends Component {
+class AuthLoadingScreen extends Component {
   constructor(props) {
     super(props)
     this._bootstrapAsync()
@@ -9,7 +10,11 @@ export default class AuthLoadingScreen extends Component {
 
   _bootstrapAsync = async () => {
     const account = await AsyncStorage.getItem('account')
-    this.props.navigation.navigate(account ? 'App' : 'Auth')
+    if(account && this.props.account.address) {
+      this.props.navigation.navigate('App')
+    } else {
+      this.props.navigation.navigate('Auth')
+    }
 
   }
 
@@ -21,3 +26,11 @@ export default class AuthLoadingScreen extends Component {
     )
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    account: state.account
+  }
+}
+
+export default connect(mapStateToProps)(AuthLoadingScreen)

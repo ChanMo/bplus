@@ -1,9 +1,15 @@
 import React, {Component} from 'react'
 import {AsyncStorage,ImageBackground,Alert, TouchableOpacity, View, Text,Dimensions} from 'react-native'
+import Toast from 'react-native-simple-toast'
 
 export default class UserScreen extends Component {
     static navigationOptions = {
-        title: '钱包备份'
+        title: '钱包备份',
+        headerStyle:{
+            borderBottomWidth:0,
+            shadowOpacity:0,
+            elevation:0,
+        }
       }
       constructor(props) {
         super(props)
@@ -32,10 +38,16 @@ export default class UserScreen extends Component {
     _validate = () => {
         AsyncStorage.getItem('mnemonic').then(result =>{
             if(JSON.stringify(result.split(' ')) == JSON.stringify(this.state.words)){
-                this.props.navigation.navigate('ToolList')
+                Toast.show('助记词备份成功，请妥善保管',1)
+                if(this.props.navigation.getParam('isFirst')){
+                    this.props.navigation.navigate('Home')
+                }
+                else{
+                    this.props.navigation.navigate('ToolList')
+                }
             }
             else{
-                Alert.alert('助记词不匹配，请重新输入')
+                Toast.show('助记词不匹配，请重新输入',1)
             }
         })
     }
@@ -51,34 +63,34 @@ export default class UserScreen extends Component {
   _backWord = (item,index) => {
     this.setState({
         messyWords:this.state.messyWords.concat([item]),
-        words:this.state.words.filter(word=>word!=item)
+        words:this.state.words.filter((word,ind)=>index!=ind)
     })
   }
 
   _selectWord = (item,index) => {
     this.setState({
         words:this.state.words.concat([item]),
-        messyWords:this.state.messyWords.filter(word=>word!=item)
+        messyWords:this.state.messyWords.filter((word,ind)=>ind!=index)
     })
   }
 
   render() {
     return (
-      <View style={{flex:1,backgroundColor:'#f7f6fc',paddingLeft:10,paddingRight:10}}>
+      <View style={{flex:1,backgroundColor:'#f6f7fb',paddingLeft:10,paddingRight:10}}>
         <Text style={{color:'#212b66',fontSize:16,fontWeight:'bold',textAlign:'center',paddingTop:20}}>确认你的钱包助记词</Text>
         <Text style={{fontSize:14,color:'#808080',paddingTop:24,lineHeight:18,textAlign:'center'}}>请按顺序点击助记词，确认你的备份助记词正确</Text>
         <View style={{backgroundColor:'#ffffff',height:140,marginTop:30,padding:5,borderRadius:5,display:"flex",flexDirection:'row',flexWrap:'wrap'}}>
             {this.state.words.map((item,index)=>
-                    <Text style={{padding:5}} onPress={()=>this._backWord(item,index)}>
-                        {this.state.words[index]}
-                    </Text>
+                <Text style={{padding:5}} onPress={()=>this._backWord(item,index)} key={index}>
+                    {this.state.words[index]}
+                </Text>
             )}
         </View>
         <View style={{height:80,display:"flex",flexDirection:'row',flexWrap:'wrap'}}>
             {this.state.messyWords.map((item,index)=>
-                    <Text style={{padding:5}} onPress={()=>this._selectWord(item,index)}>
-                        {this.state.messyWords[index]}
-                    </Text>
+                <Text style={{padding:5}} onPress={()=>this._selectWord(item,index)} key={index}>
+                    {this.state.messyWords[index]}
+                </Text>
             )}
         </View>
         

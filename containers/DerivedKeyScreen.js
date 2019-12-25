@@ -1,9 +1,15 @@
 import React, {Component} from 'react'
 import { View, Text,TouchableOpacity,ImageBackground,Clipboard,Alert,AsyncStorage} from 'react-native'
+import Toast from 'react-native-simple-toast'
 
 export default class UserScreen extends Component {
     static navigationOptions = {
-        title: '导出私钥'
+        title: '导出私钥',
+        headerStyle:{
+            borderBottomWidth:0,
+            shadowOpacity:0,
+            elevation:0,
+        }
     }
     constructor(props) {
         super(props)
@@ -18,19 +24,19 @@ export default class UserScreen extends Component {
 
     _gettext = () => {
         AsyncStorage.getItem('privateKey').then(result =>{
-            this.setState({copyText:result})
+            this.setState({copyText: result })
         })
     }
 
     async _copytext() {
         Clipboard.setString(this.state.copyText);
         var content = await Clipboard.getString();
-        Alert.alert('您已成功复制到剪切板，请妥善保管')
+        Toast.show('您已成功复制到剪切板，请妥善保管',1)
       }
 
   render() {
     return (
-      <View style={{flex:1,backgroundColor:'#f7f6fc',paddingLeft:10,paddingRight:10}}>
+      <View style={{flex:1,backgroundColor:'#f6f7fb',paddingLeft:10,paddingRight:10}}>
         <Text style={{padding:20,color:'#ffb425'}}>安全警告：私钥未经加密，导出存在风险，建议使用助记词和Keystore进行备份。</Text>
         <View style={{backgroundColor:'#ffffff',justifyContent:'center',padding:5,borderRadius:5,display:"flex",flexDirection:'row',flexWrap:'wrap'}}>
             <Text style={{textAlign:"center"}}>{this.state.copyText}</Text>

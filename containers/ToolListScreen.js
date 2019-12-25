@@ -7,17 +7,23 @@ const data = [
   {name:'钱包备份',  path:'Password',param:{event:'back_ups'}},
   {name:'导出私钥',  path:'Password',param:{event:'derived_key'}},
   {name:'删除钱包',  path:'Password',param:{event:'delet_hint'}},
+  //{name:'服务设置', path:'ServiceConfig'}
 ]
 
 export default class UserScreen extends Component {
     static navigationOptions = {
-        title: '钱包工具'
+        title: '钱包工具',
+        headerStyle:{
+            borderBottomWidth:0,
+            shadowOpacity:0,
+            elevation:0,
+        }
       }
   _renderItem = ({item}) => (
     <TouchableOpacity onPress={()=>item.path ? this.props.navigation.navigate(item.path, item.param) : null}
       style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:15,paddingVertical:10,backgroundColor:'white',marginTop:2}}>
-      <View style={{flexDirection:'row',alignItems:'center',height:34}}>
-        <Text style={{color:'rgb(68,68,68)'}}>{item.name}</Text>
+      <View style={{flexDirection:'row',alignItems:'center',height:30}}>
+        <Text style={{color:'rgb(68,68,68)',fontSize:14}}>{item.name}</Text>
       </View>
       <Icon name='chevron-right' size={20} color='rgb(122,122,122)' />
     </TouchableOpacity>
@@ -35,7 +41,7 @@ export default class UserScreen extends Component {
 
   render() {
     return (
-      <View style={{flex:1,backgroundColor:'rgb(245,243,251)'}}>
+      <View style={{flex:1,backgroundColor:'f6f7fb'}}>
         <FlatList
           style={{flex:1}}
           data={data}

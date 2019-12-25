@@ -2,6 +2,9 @@ import React, {Component} from 'react'
 import {DeviceEventEmitter, Alert, StyleSheet, AsyncStorage , TouchableOpacity, View, TextInput, Text, ImageBackground} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
 import colors from '../colors'
+import * as Keychain from 'react-native-keychain';
+const dismissKeyboard = require('dismissKeyboard'); 
+import Toast from 'react-native-simple-toast'
 
 export default class PasswordScreen extends Component {
   constructor(props) {
@@ -26,8 +29,16 @@ export default class PasswordScreen extends Component {
   }
 
   _getPassword = async() => {
-    const password = await AsyncStorage.getItem('password')
-    this.setState({password: password})
+    try {
+      const credentials = await Keychain.getGenericPassword();
+      if (credentials) {
+        this.setState({password: credentials.password})
+      } else {
+        console.log('No credentials stored')
+      }
+    } catch (error) {
+      console.log('Keychain couldn\'t be accessed!', error);
+    }
   }
 
   _setPassword(value) {
@@ -41,7 +52,10 @@ export default class PasswordScreen extends Component {
 
   _submit= (value) => {
     if (value !== this.state.password) {
-      Alert.alert('密码错误')
+      this.setState({
+        input: ''
+      })
+      Toast.show('密码错误',1)
     } else {
       DeviceEventEmitter.emit(this.props.navigation.getParam('event'))
       this.props.navigation.goBack()
@@ -49,7 +63,7 @@ export default class PasswordScreen extends Component {
   }
 
   _renderHeader = () => (
-    <View style={{height:44,backgroundColor:'#f5f5f5',alignItems:'center',flexDirection:'row',marginTop:20}}>
+    <View style={{height:44,backgroundColor:'#f6f7fb',alignItems:'center',flexDirection:'row',marginTop:40}}>
       <TouchableOpacity
         style={{flex:1.7,paddingLeft:15}}
         onPress={()=>this.props.navigation.goBack()}>
@@ -64,6 +78,7 @@ export default class PasswordScreen extends Component {
   )
 
   _getFocus = () =>{
+    dismissKeyboard();
     var passw = this.refs.password;
     passw.focus()
   }
@@ -71,7 +86,7 @@ export default class PasswordScreen extends Component {
   render() {
     const {navigate, goBack} = this.props.navigation
     return (
-      <View style={{flex:1,backgroundColor:'#f5f5f5'}}>
+      <View style={{flex:1,backgroundColor:'#f6f7fb'}}>
         {this._renderHeader()}
         <View style={{flex:1,padding:30}}>
           {/* <Text style={styles.label}>密码</Text> */}
@@ -84,13 +99,15 @@ export default class PasswordScreen extends Component {
               autoFocus={true}
               onChangeText={(value)=>this._setPassword(value)}
               height={0}/>
-            <View style={{display:'flex',flexDirection:'row'}}>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[0]?'*':''}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[1]?'*':''}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[2]?'*':''}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[3]?'*':''}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[4]?'*':''}</Text>
-              <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[5]?'*':''}</Text>
+            <View style={{alignContent:'center'}}>
+              <View style={{display:'flex',flexDirection:'row',width:290,alignSelf:'center'}}>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[0]?'*':''}</Text>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[1]?'*':''}</Text>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[2]?'*':''}</Text>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[3]?'*':''}</Text>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[4]?'*':''}</Text>
+                <Text onPress={()=>{this._getFocus()}} style={styles.oneInput}>{this.state.input[5]?'*':''}</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -120,7 +137,7 @@ const styles = {
     margin:4,
     borderRadius:5,
     textAlign:'center',
-    lineHeight:50,
+    lineHeight:46,
     fontSize:30,
     backgroundColor:'#ffffff'
   }

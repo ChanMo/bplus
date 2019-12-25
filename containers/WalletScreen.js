@@ -1,87 +1,107 @@
 import React, {Component} from 'react'
-import {DeviceEventEmitter, StyleSheet, RefreshControl, ActivityIndicator, ScrollView, AsyncStorage, Alert, StatusBar, Dimensions, ImageBackground, Image, FlatList, Button, View, Text, TouchableOpacity} from 'react-native'
+import {DeviceEventEmitter, StyleSheet, RefreshControl,Platform, ActivityIndicator, ScrollView, Dimensions, ImageBackground, Image, FlatList, Button, View, Text, TouchableOpacity} from 'react-native'
 import Icon from 'react-native-vector-icons/Feather'
-import {formatBalance} from '../utils'
-import tokens from '../tokens'
-import {getMarketData, getBalance} from '../utils'
-const {width} = Dimensions.get('window')
+import { connect } from 'react-redux'
+import { addToken, fetchBalance, updateAsset } from '../actions'
+import Identicon from 'identicon.js'
 
-export default class WalletScreen extends Component {
+import tokens from '../tokens'
+const {width} = Dimensions.get('window')
+import imageUrl from '../imageUrl'
+
+class WalletScreen extends Component {
   static navigationOptions = {
-    title: '钱包'
+    title: '钱包',
+    headerStyle:{
+        borderBottomWidth:0,
+        shadowOpacity:0,
+        elevation:0,
+    }
   }
 
   constructor(props) {
     super(props)
     this.state = {
-      account: null,
       refreshing: false,
-      coins: [], // 用户收藏token
-      prices: [], // 市场价格列表
-      popShow:false
+      popShow:false,
     }
   }
 
   componentDidMount() {
-    DeviceEventEmitter.addListener('mycoins_changed', (e)=>this._getCoins())
-    this._getAccount() // 获取account地址
+    console.log(this.props.tokens)
+    this.props.tokens.map(item => this.props.fetchBalance(
+      this.props.account, item.token))
+    this.makeTotalAsset()
+    DeviceEventEmitter.addListener('scanner_success',
+      (e)=>this.props.navigation.navigate('Transfer', {'token':'ETH','to':e}))
   }
 
-  _getAccount = async() => {
-    const account = await AsyncStorage.getItem('account')
-    this.setState({account:account})
-    this._getCoins() // 获取用户tokens
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if(prevProps.tokens.length != this.props.tokens.length) {
+      // add or remove
+      console.log('add or remove tokens')
+      this.props.tokens.map(item => this.props.fetchBalance(
+        this.props.account, item.token))
+      //this.makeTotalAsset()
+
+    }else if(prevProps.tokens != this.props.tokens) {
+      console.log('token balance updated')
+      // balance updated
+      this.makeTotalAsset()
+    }
+
+    if(prevProps.market != this.props.market) {
+      this.makeTotalAsset()
+    }
   }
 
-  // 获取用户收藏的token列表
-  _getCoins = async() => {
-    let coins = await AsyncStorage.getItem('mycoins')
-    coins = JSON.parse(coins)
-    let tokens = []
-    coins.map(item =>
-      tokens.push({
-        'token':item,
-        'balance':getBalance(this.state.account, item)
-      })
-    )
-    return this.setState({coins:tokens})
-  }
-
-  // 计算总资产
-  _getTotal = () => {
-    let total = 0.0000
-    this.state.coins.map(item => {
-      let priceObj = this.state.prices[item.name]
-      let price = priceObj ? priceObj.quote.CNY.price : 0.00
-      total += item.balance * price
+  /**
+   * 计算总资产
+   */
+  makeTotalAsset = () => {
+    let total = 0.00
+    let markets = this.props.market.data
+    if(markets.length <= 0) {
+      return
+    }
+    this.props.tokens.map(item => {
+      market = markets.filter(i => i.symbol == item.token)[0]
+      let price = market ? parseFloat(market.price_cny) : 0.00
+      total += parseFloat(item.balance) * price
     })
-    console.log('total', total)
-    return total.toFixed(4)
+    this.props.updateAsset(total.toFixed(2))
   }
 
-  // 从存储器中获取市场数据
-  _getMarket = async() => {
-    const market = await AsyncStorage.getItem('market')
-    return JSON.parse(market)
-  }
-
+  /**
+   * refresh
+   */
   _onRefresh = () => {
     this.setState({refreshing:true})
-    this._getCoins().then(()=>this.setState({refreshing:false}))
+    this.props.tokens.map(item => this.props.fetchBalance(
+      this.props.account, item.token))
+    //this.makeTotalAsset()
+    this.setState({refreshing:false})
+  }
+
+  /**
+   * scanner
+   */
+  onScanner = () => {
+    this.setState({popShow:false})
+    this.props.navigation.navigate('Scanner')
   }
 
   _renderHeader = () => (
     <View style={styles.header}>
-      <View style={{flexDirection:'row'}}>
-        <Text style={{color:'white',marginRight:10}}>币加</Text>
-        {web3.currentProvider.connected ? (
-          <Text style={{color:'green'}}>正常</Text>
-        ) : (
-          <Text style={{color:'red'}}>未连接</Text>
-        )}
+      <View style={{flex:1}}>
+        <Text style={{color:'white',marginRight:10,fontSize:18}}>付否</Text>
       </View>
-      <TouchableOpacity onPress={()=>{this.setState({popShow:true})}}>
+      <TouchableOpacity style={{width:30,marginRight:30}} onPress={()=>{this.props.navigation.navigate('CoinList');this.setState({popShow:false})}}>
         <Icon name='plus' size={26} color='white' />
+      </TouchableOpacity>
+      <TouchableOpacity style={{width:30}} onPress={this.onScanner}>
+        <Icon name='maximize' size={26} color='white' />
+        {/* <Image source={require('./../images/maximize.png')} style={{height:26,width:26}}></Image> */}
       </TouchableOpacity>
     </View>
   )
@@ -89,36 +109,41 @@ export default class WalletScreen extends Component {
   _renderPop = () =>{
     return(
       <View style={{height:'100%',width:'100%',position:'absolute',zIndex:9999}}>
-          <TouchableOpacity  onPress={()=>{this.setState({popShow:false})}} style={{position:'absolute',zIndex:0,height:'100%',width:'100%'}}>
-
-          </TouchableOpacity>
+          <TouchableOpacity  onPress={()=>{this.setState({popShow:false})}} style={{position:'absolute',zIndex:0,height:'100%',width:'100%'}}></TouchableOpacity>
           <ImageBackground
-            style={{height:90,width:140,position:'absolute',top:64,right:10}}
+            style={{height:90,width:140,position:'absolute',top:Platform.OS === 'ios' ? 78 : 36,right:10}}
             source={require('../images/pop-up.png')}
             imageStyle={{width:140,height:90}}>
-              <TouchableOpacity  onPress={()=>this.props.navigation.navigate('CoinList')} style={{padding:6,paddingLeft:25,marginTop:14,display:'flex',flexDirection:'row'}}>
+              <TouchableOpacity  onPress={()=>{this.props.navigation.navigate('CoinList');this.setState({popShow:false})}} style={{padding:6,paddingLeft:25,marginTop:14,display:'flex',flexDirection:'row'}}>
                 <Icon name='plus' size={20} color='#808080' />
                 <Text style={{flex:1,lineHeight:20,paddingLeft:5,color:'#808080'}}>添加资产</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{padding:6,paddingLeft:25,marginTop:6,display:'flex',flexDirection:'row'}}>
+              <TouchableOpacity  onPress={this.onScanner} style={{padding:6,paddingLeft:25,marginTop:6,display:'flex',flexDirection:'row'}}>
                 <Icon name='maximize' size={20} color='#808080' />
                 <Text style={{flex:1,lineHeight:20,paddingLeft:5,color:'#808080'}}>扫一扫</Text>
               </TouchableOpacity>
           </ImageBackground>
       </View>
-      
     )
   }
 
   _renderMain = () => {
+    let image = new Identicon(this.props.account, {size:420,background: [255, 255, 255]}).toString()
     return (
       <ImageBackground
-        source={require('../images/log-bg.png')} style={styles.main}>
-        <View style={{paddingHorizontal:20,paddingVertical:30}}>
-          <Text style={styles.mainTitle}>我的资产</Text>
+        source={require('../images/log-bg.png')}
+        imageStyle={{width:'100%',height:'70%',opacity:0.3}}
+        resizeMode={'stretch'}
+        style={styles.main}>
+        <View style={{padding:20}}>
+          <View style={styles.mainTitle}>
+            <Image
+              source={{uri:'data:image/png;base64,'+image}}
+              style={{width:32,height:32,borderRadius:5}} />
+          </View>
           <View style={{flexDirection:'row',alignItems:'center'}}>
             <Text style={styles.mainCNY}>CNY</Text>
-            <Text style={styles.mainBalance}>{this._getTotal()}</Text>
+            <Text style={styles.mainBalance}>{this.props.asset}</Text>
           </View>
         </View>
         <View style={styles.mainActionContainer}>
@@ -142,24 +167,40 @@ export default class WalletScreen extends Component {
       </ImageBackground>
     )
   }
-  _renderItem(item, market) {
-    const priceObj = market[item.name]
-    const price = priceObj ? priceObj.quote.CNY.price.toFixed(2) : 0.00
-    const status = priceObj ? priceObj.quote.CNY.percent_change_24h.toFixed(2) : 0.00
-    const balance = (item.balance * price).toFixed(2)
+
+  /**
+   * render single token
+   */
+  _renderItem = ({item, index}) => {
+    let coinmarket
+    if(this.props.market.data)
+      coinmarket = this.props.market.data.filter(
+        i => i.symbol == item.token)[0]
+    let price = 0.00
+    let asset = 0.00
+
+    if(coinmarket) {
+      price = parseFloat(coinmarket.price_cny).toFixed(2)
+      asset = parseFloat(coinmarket.price_cny * item.balance).toFixed(2)
+    }
     return(
-      <TouchableOpacity onPress={()=>this.props.navigation.navigate('Log', {token:item.token})}>
+      <TouchableOpacity
+        onPress={()=>this.props.navigation.navigate('Coin',
+          {coin:item.token})}>
         <View style={styles.item}>
-          <Text style={{color:'rgb(78,78,78)'}}>{item.token}</Text>
-          <View style={{alignItems:'flex-end'}}>
-            <Text style={{fontWeight:'bold',
-              color:status > 0 ? 'blue' : 'red'}}>{price}</Text>
-            <Text style={{fontSize:12,
-              color:status > 0 ? 'blue' : 'red'}}>{status}%</Text>
+          <Image
+            source={imageUrl[item.token]}
+            style={{width:26,height:26,borderRadius:5,marginRight:10}} />
+          <View style={{flex:80}}>
+            <Text style={{color:'rgb(81,81,114)',fontSize:18,height:20,marginBottom:6}}>{item.token}</Text>
+            <Text style={{color:'#999999',fontSize:12,height:14}}>{price} CNY</Text>
           </View>
-          <View style={{alignItems:'flex-end'}}>
-            <Text style={{color:'rgb(46,46,46)'}}>{item.balance}</Text>
-            <Text style={{fontSize:12,color:'rgb(184,186,206)'}}>≈{balance}</Text>
+          <View style={{alignItems:'flex-end',flex:60}}>
+
+          </View>
+          <View style={{alignItems:'flex-end',flex:80}}>
+            <Text style={{color:'rgb(81,81,114)',fontSize:18,height:20,marginBottom:6}}>{parseFloat(item.balance).toFixed(4)}</Text>
+            <Text style={{fontSize:12,color:'#999999',height:14}}>≈{asset} CNY</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -170,15 +211,14 @@ export default class WalletScreen extends Component {
     <View>Empty</View>
   )
 
-  _renderToken = () => {
-    const market = this._getMarket()
+  _renderToken() {
     return (
       <FlatList
         style={{paddingHorizontal:15}}
-        data={this.state.coins}
+        data={this.props.tokens}
         keyExtractor={(item,i) => i.toString()}
-        renderItem={({item}) => this._renderItem(item, market)}
-        extraData={this.state}
+        renderItem={this._renderItem}
+        extraData={this.state, this.props}
         emptyComponent={this._renderEmpty}
       />
     )
@@ -186,7 +226,7 @@ export default class WalletScreen extends Component {
 
   render() {
     return (
-      <View style={{backgroundColor:'rgb(245,243,251)'}}>
+      <View style={{backgroundColor:'#f6f7fb'}}>
         <ImageBackground
           source={require('../images/wallet-bg.png')}
           imageStyle={{width:width,height:width*5/6}}
@@ -207,33 +247,45 @@ export default class WalletScreen extends Component {
     )
   }
 }
-
+import IphoneX from './../reducers/isIphoneX'
 const styles = StyleSheet.create({
   header: {
     height:54,
-    marginTop:20,
     flexDirection:'row',
     alignItems:'center',
     paddingHorizontal:15,
-    justifyContent:'space-between'
+    justifyContent:'space-between',
+    ...IphoneX.ifIphoneX({
+      marginTop: 44
+    }, {
+      marginTop: Platform.OS === 'ios' ? 20 : 0,
+    })
   },
   mainTitle: {
-    fontWeight:'600',
-    fontSize:12,
-    color:'#4a4a4a',
-    marginBottom:10
+    marginBottom:15,
+    height:46,
+    width:46,
+    borderRadius:23,
+    borderWidth:1,
+    borderColor:'#f0f0f0',
+    alignItems:'center',
+    justifyContent:'center'
   },
   mainCNY: {
     marginRight:10,
-    backgroundColor:'#ff9a00',
-    borderRadius:2,
+    backgroundColor:'#eeaa3c',
+    borderRadius:4,
+    overflow:'hidden',
     paddingVertical:2,
     paddingHorizontal:6,
-    fontSize:12,color:'white'
+    fontSize:16,
+    fontWeight:'bold',
+    color:'white'
   },
   mainBalance: {
     fontSize:28,
-    color:'rgb(81,81,114)'
+    color:'rgb(81,81,114)',
+    fontWeight:'200'
   },
   mainActionContainer: {
     backgroundColor: 'rgb(232,236,245)',
@@ -265,7 +317,7 @@ const styles = StyleSheet.create({
   item: {
     backgroundColor:'white',
     marginBottom:5,
-    paddingVertical:10,
+    paddingVertical:12,
     paddingHorizontal:15,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -273,3 +325,27 @@ const styles = StyleSheet.create({
     borderRadius:5
   }
 })
+
+const mapStateToProps = state => {
+  return {
+    account: state.account.address,
+    market: state.market,
+    tokens: state.tokens,
+    asset: state.account.asset
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onAddToken: token => dispatch(addToken(token)),
+    fetchBalance: (address, token) => dispatch(fetchBalance(address, token)),
+    updateAsset: (data) => dispatch(updateAsset(data))
+  }
+}
+
+WalletScreen = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(WalletScreen)
+
+export default WalletScreen

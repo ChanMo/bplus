@@ -3,6 +3,16 @@ package com.bplus;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.transistorsoft.rnbackgroundfetch.RNBackgroundFetchPackage;
+import com.jamesisaac.rnbackgroundtask.BackgroundTaskPackage;
+import com.learnium.RNDeviceInfo.RNDeviceInfo;
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.tradle.react.UdpSocketsModule;
+import com.peel.react.TcpSocketsModule;
+import com.peel.react.rnos.RNOSModule;
+import com.oblador.keychain.KeychainPackage;
+import org.reactnative.camera.RNCameraPackage;
 import com.bitgo.randombytes.RandomBytesPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -24,6 +34,16 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNBackgroundFetchPackage(),
+            new BackgroundTaskPackage(),
+            new RNDeviceInfo(),
+            new ReactNativePushNotificationPackage(),
+            new VectorIconsPackage(),
+            new UdpSocketsModule(),
+            new TcpSocketsModule(),
+            new RNOSModule(),
+            new KeychainPackage(),
+            new RNCameraPackage(),
             new RandomBytesPackage()
       );
     }
@@ -43,5 +63,6 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
+    BackgroundTaskPackage.useContext(this);
   }
 }

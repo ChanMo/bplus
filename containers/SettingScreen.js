@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
 import {AsyncStorage, Button, View, Text} from 'react-native'
-import {ListItem} from 'react-native-elements'
 
 const list = [
   {name:'关于'},
@@ -9,7 +8,12 @@ const list = [
 
 export default class SettingScreen extends Component {
   static navigationOptions = {
-    title: '设置'
+    title: '设置',
+    headerStyle:{
+        borderBottomWidth:0,
+        shadowOpacity:0,
+        elevation:0,
+    }
   }
 
   _clear = async() => {

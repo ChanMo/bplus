@@ -23,4 +23,10 @@ if (typeof localStorage !== 'undefined') {
 
 // If using the crypto shim, uncomment the following line to ensure
 // crypto is loaded first, so it can populate global.crypto
+//
 // require('crypto')
+
+const Web3 = require('web3')
+global.web3 = new Web3('https://mainnet.infura.io/v3/c5ecf0f3fad2436e94fa74e57b0f4c50');
+// global.web3 = new Web3('http://47.244.0.145:8545');
+

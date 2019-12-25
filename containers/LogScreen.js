@@ -1,274 +1,156 @@
 import React, {Component} from 'react'
-import {RefreshControl, ActivityIndicator,Dimensions,ImageBackground, Alert, AsyncStorage,StyleSheet, TouchableOpacity, FlatList, View, Text} from 'react-native'
-import Icon from 'react-native-vector-icons/Feather'
-import colors from '../colors'
-import {getBalance, formatTime, formatBalance, getCoinsValData} from '../utils'
-import { deflate } from 'zlib';
+import {RefreshControl, ActivityIndicator,DeviceEventEmitter,ScrollView,Dimensions,ImageBackground, Alert, AsyncStorage,StyleSheet, TouchableOpacity, FlatList, View, Text,Image} from 'react-native'
+import { connect } from 'react-redux'
+import { fetchBalance, fetchLog, clearPending } from '../actions'
+import { LogItem, Empty, Button } from '../components'
 
-const Web3 = require('web3')
-let web3 = new Web3('http://47.94.206.167:8545');
-
-const apikey = 'G1T2IX1V1J157RINVS4H1R7QJ3811Z4D6W'
-const url = 'https://api.etherscan.io/api'
-
-export default class LogScreen extends Component {
+class LogScreen extends Component {
   static navigationOptions = ({navigation}) => ({
-    title: navigation.getParam('token')
+    title: navigation.getParam('coin', 'ETH'),
+    headerStyle:{
+      borderBottomWidth:0,
+      shadowOpacity:0,
+      elevation:0,
+    }
   })
 
   constructor(props) {
     super(props)
     this.state = {
-      token: null,
-      account: null,
-      balance: 0.0000,
-      logs: [],
-      fetching: true,
-      refreshing: false,
-      coinNum:20,
-      coinTran:1,
-      txreceipt_status:'交易完成'
+      coin: props.navigation.getParam('coin', 'ETH'), // token名字
+      data: [],
+      page: 1,
+      end: false
     }
   }
 
-  componentDidMount() {
-    this.setState({token: this.props.navigation.getParam('token')})
-    this._getCoinsValData(this.props.navigation.getParam('token'))
-    this._getAccount()
+  componentWillMount() {
+    this.props.fetchLog(this.props.account, this.state.coin, this.state.page, 20)
+    this.setState({page:this.state.page+1})
   }
 
-  _getCoinsValData = (coins) => {
-    let url = `http://bplus.bijia666.com/index.php/getPriceByCoinName?coin=`+coins
-    return fetch(url, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'X-CMC_PRO_API_KEY': 'afa301a7-3f5d-4694-b87c-eb48e6e07cc8'
-      }
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
+  componentDidUpdate(prevProps, prevState) {
+    if(prevProps.log.fetching != this.props.log.fetching
+      && this.props.log.fetching == false) {
+      if(this.props.log.data.length > 0) {
+        let data = this.state.data.concat(this.props.log.data)
         this.setState({
-          coinTran:responseJson.data
+          data: data,
+          end: this.props.log.data.length < 20
         })
-      })
-      .catch((error) => console.log(error))
-  }
-
-  // 获取账户
-  _getAccount = async() => {
-    const account = await AsyncStorage.getItem('account')
-    this.setState({account:account.toLowerCase()})
-    this._getBalance()
-    this._fetchLog()
-  }
-
-  // 获取资产
-  _getBalance() {
-    //this.setState({balance: getBalance(this.state.account, this.state.token)})
-    web3.eth.getBalance(this.state.account).then(res => this.setState({balance: web3.utils.fromWei(res, 'ether')}))
-  }
-
-  _onRefresh = () => {
-    this.setState({refreching:true})
-    this._fetchLog().then(()=>this.setState({refreshing:false}))
-  }
-
-  // 获取交易记录
-  _fetchLog = () => {
-    let curl = url + `?module=account&action=txlist&address=${this.state.account}&startblock=0&endblock=99999999&sort=desc&apikey=${apikey}`
-    return fetch(curl)
-      .then((response) => response.json())
-      .then((responseJson) => {
-        // console.log(responseJson)
-        if(responseJson.status == '1') {
-          this.setState({logs:responseJson.result})
-        } else {
-          Alert.alert(responseJson.message)
-        }
-        this.setState({fetching:false})
-      })
-      .catch((error) => {
-        this.setState({fetching:false})
-        Alert.alert(error.toString())
-      })
-  }
-
-  _filterShort(str) {
-    return str.substr(0,7)+'...'+str.substr(-7)
-  }
-
-  _setState = (state)=>{
-    switch(state){
-      case '0':
-      return '打包失败'
-      case '1':
-      return ''
-      case '2':
-      return '打包中'
+      } else {
+        this.setState({end: true})
+      }
     }
+  }
+
+  componentWillUnmount() {
+    this.props.fetchLog(this.props.account, this.state.coin, 1, 10)
+  }
+
+  _isReached = () => {
+    if(this.state.end || this.props.log.fetching) {
+      return
+    }
+    console.log('page',this.state.page)
+    this.props.fetchLog(this.props.account, this.state.coin, this.state.page, 20)
+    this.setState({page:this.state.page+1})
+  }
+
+  /**
+   * render item
+   */
+  _renderItem = ({item}) => {
+    let data = {
+      'hash': item.hash,
+      'from': item.from,
+      'to': item.to,
+      'value': parseFloat(web3.utils.fromWei(item.value)).toFixed(4),
+      'timestamp': item.timeStamp ? item.timeStamp : item.timestamp,
+      'status': item.status ? item.status : 4
+    }
+    return <LogItem
+      onPress={()=>this.props.navigation.navigate(
+        'Detail', {hash:item.hash})}
+      account={this.props.account}
+      data={data} />
   }
 
   _keyExtractor = (item,i) => i.toString()
 
-  // //列表倒序
-  // _reverse = (obj) => {
-  //   let arr = []
-  //   for(let i in obj){
-  //     arr.push(obj[i])
-  //   }
-  //   for (let i in obj) {
-  //     obj[i] = arr[obj.length-1-i]
-  //   }
-  //   return obj;
-  // }
-
-  _renderHeader = () => (
-      <ImageBackground source={require('../images/log-bg.png')}
-        imageStyle={{}}
-        style={{height:140,flexDirection:'row',justifyContent:'center',}}>
-        <View style={{alignSelf:'center'}}>
-          <Text style={{fontSize:28,alignSelf:'center'}}>
-            {formatBalance(this.state.balance, 4)}</Text>
-          <Text style={{fontSize:16,alignSelf:'center'}}>
-            ≈¥{(this.state.balance*this.state.coinTran).toFixed(2)}
-            </Text>
-        </View>
-      </ImageBackground>
-  )
-
-  // 单条记录
-  _renderItem = ({item, index}) => (
-    <TouchableOpacity
-      style={styles.logContainer}
-      onPress={()=>this.props.navigation.navigate('Detail',
-      {hash:item.hash})}>
-      <View style={{height:'100%',width:4,backgroundColor:this.state.account==item.from?'#e40006':'#499f04',position:'absolute',marginTop:10,borderTopRightRadius:4,borderBottomRightRadius:4}}></View>
-      <View>
-        <Text style={styles.logTitle}>
-          {this._filterShort(this.state.account==item.from?item.to:item.from)}</Text>
-        <Text style={styles.logDate}>
-          {formatTime(item.timeStamp)}</Text>
-      </View>
-      <View>
-        <Text style={this.state.account==item.from?styles.logBalanceOrange:styles.logBalanceBlue}>
-          {this.state.account==item.from? '-':'+'}
-          {web3.utils.fromWei(item.value, 'ether')+' ether'}</Text>
-        <Text style={styles.logStatus}>
-          {this._setState(item.txreceipt_status)}</Text>
-      </View>
-    </TouchableOpacity>
-  )
-
-  // 空
+  /**
+   * render empty
+   */
   _renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Icon name='moon' size={80} color={colors.secondary} />
-      <Text style={{color:colors.darkgrey,marginTop:20}}>这里什么也没有</Text>
-    </View>
+    <Empty text={'暂无交易记录'} />
   )
 
-  // 底部按钮
-  _renderFooter = () => (
-    <View style={{height:46,display:'flex',flexDirection:'row'}}>
-      <TouchableOpacity
-        style={{flex:1,backgroundColor:'#212b66'}}
-        onPress={()=>this.props.navigation.navigate('Transfer',
-        {token:this.state.token})}>
-        <View style={{alignItems:'center',justifyContent:'center',height:42}}>
-          <Text style={{fontSize:14,color:'#ffffff',alignSelf:'center'}}>
-            转  账</Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={{flex:1,backgroundColor:'#27337d'}}
-        onPress={()=>this.props.navigation.navigate('Receipt')}>
-        <View style={{alignItems:'center',justifyContent:'center',height:42}}>
-          <Text style={{fontSize:14,color:'#ffffff',alignSelf:'center'}}>
-            收  款</Text>
-        </View>
-      </TouchableOpacity>
-    </View>
-  )
+  /**
+   * render list footer
+   */
+  _renderFooter = () => {
+    if(this.props.log.fetching) {
+      return (
+        <Text style={styles.footerText}>加载中...</Text>
+      )
+    } else if(this.state.end) {
+      return (
+        <Text style={styles.footerText}>没有更多了</Text>
+      )
+    } else {
+      return null
+    }
+  }
 
   render() {
+    if(this.state.page == 2 && this.props.log.fetching) {
+      return (
+        <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+          <ActivityIndicator />
+        </View>
+      )
+    }
     return (
-      <View style={{flex:1}}>
-        {this._renderHeader()}
-        {/* <StatusBar translucent={false} barStyle='dark-content' /> */}
-        {!this.state.fetching ? (
-          <FlatList
-            style={{paddingTop:10,paddingBottom:10}}
-            data={this.state.logs}
-            keyExtractor={this._keyExtractor}
-            renderItem={this._renderItem}
-            refreshControl={
-            <RefreshControl
-              onRefresh={this._onRefresh}
-              refreshing={this.state.refreshing} />
-            }
-            ListEmptyComponent={this._renderEmpty}
-          />
-        ) : (
-          <View style={{flex:1,justifyContent:'center'}}>
-            <ActivityIndicator />
-          </View>
-        )}
-
-        {this._renderFooter()}
-      </View>
+      <FlatList
+        style={{flex:1}}
+        data={this.state.data}
+        keyExtractor={this._keyExtractor}
+        renderItem={this._renderItem}
+        ListEmptyComponent={this._renderEmpty}
+        ListFooterComponent={this._renderFooter}
+        onEndReached={this._isReached}
+      />
     )
   }
 }
 
 const styles = StyleSheet.create({
-  main: {
-
-  },
-  logContainer: {
-    flex:1,
-    backgroundColor:'white',
-    position:'relative',
-    margin:15,
-    borderRadius:3
-    ,marginTop:2,
-    marginBottom:8,
-    padding:15,
-    paddingTop:10,
-    paddingBottom:10,
-    flexDirection:'row',
-    justifyContent:'space-between'
-  },
-  logTitle: {
-    color:colors.dark,
-    fontSize:14,
-    lineHeight:20
-  },
-  logDate: {
-    color:colors.lightgrey,
-    fontSize:12,
-    lineHeight:20
-  },
-  logBalanceOrange: {
-    fontSize:14,
-    lineHeight:20,
-    color:'#ff9b00'
-  },
-  logBalanceBlue: {
-    fontSize:14,
-    lineHeight:20,
-    color:'#212b66'
-  },
-  logStatus: {
-    color:colors.lightgrey,
-    textAlign:'right',
-    fontSize:12,
-    lineHeight:20
-  },
-  emptyContainer: {
-    flex:1,
-    alignItems:'center',
-    justifyContent:'center',
-    marginTop:50
+  footerText: {
+    marginVertical: 20,
+    textAlign: 'center',
+    color: '#666666'
   }
 })
+
+const mapStateToProps = state => {
+  return {
+    account: state.account.address,
+    eth: state.account.balance,
+    tokens: state.tokens,
+    market: state.market.data,
+    pending: state.pending,
+    log: state.log
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchBalance: (account, token) => dispatch(
+      fetchBalance(account, token)),
+    fetchLog: (account, coin, page, offset) => dispatch(
+      fetchLog(account, coin, page, offset)),
+    clearPending: () => dispatch(clearPending())
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(LogScreen)

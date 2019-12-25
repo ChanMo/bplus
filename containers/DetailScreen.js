@@ -1,11 +1,19 @@
 import React, {Component} from 'react'
-import {StyleSheet, ActivityIndicator, Dimensions, TouchableOpacity, ImageBackground, Image, View, Text, Clipboard,Alert} from 'react-native'
+import {StyleSheet, ActivityIndicator,ScrollView, Dimensions, TouchableOpacity, ImageBackground, Image, View, Text, Clipboard,Alert} from 'react-native'
 const {width} = Dimensions.get('window')
 import {formatTime} from '../utils'
+import QRCode from 'react-native-qrcode'
+import Toast from 'react-native-simple-toast'
 
+let queryAddress = 'https://etherscan.io/tx/'
 export default class WalletScreen extends Component {
   static navigationOptions = {
-    title: '交易详情'
+    title: '交易详情',
+    headerStyle:{
+        borderBottomWidth:0,
+        shadowOpacity:0,
+        elevation:0,
+    }
   }
 
   constructor(props) {
@@ -15,7 +23,7 @@ export default class WalletScreen extends Component {
       hash: navigation.getParam('hash'),
       transaction: null,
       block: {},
-      gasUsed:'',
+      gasUsed: null,
     }
   }
 
@@ -27,16 +35,19 @@ export default class WalletScreen extends Component {
   _fetchData = () => {
     web3.eth.getTransaction(this.state.hash).then((res) => {
       this.setState({transaction: res})
-      web3.eth.getBlock(res.blockHash).then((ress) => this.setState({block: ress}))
+      if(res.blockHash) {
+        web3.eth.getBlock(res.blockHash).then((ress) => this.setState({block: ress}))
+      }
     })
-    web3.eth.getTransactionReceipt(this.state.hash).then((res) => {
-        this.setState({gasUsed:res.gasUsed})
+    web3.eth.getTransactionReceipt(this.state.hash)
+      .then((res) =>
+        {if(res)this.setState({gasUsed:res.gasUsed})
     })
   }
 
   _copyText = (value) => {
       Clipboard.setString(value);
-      Alert.alert('已复制到剪切板')
+      Toast.show('已复制到剪切板',1)
   }
 
   _renderBody = () => {
@@ -47,8 +58,8 @@ export default class WalletScreen extends Component {
               <Image style={styles.headerImg}
                 source={require('../images/detail-tip.png')}></Image>
             </View>
-            <Text style={styles.headerTitle}>收款成功</Text>
-            <Text style={styles.headerTime}>{formatTime(this.state.block.timestamp)}</Text>
+            <Text style={styles.headerTitle}>交易成功</Text>
+            {this.state.block && <Text style={styles.headerTime}>{this.state.block.timestamp?formatTime(this.state.block.timestamp):''}</Text>}
           </View>
           {this._renderMsg()}
       </View>
@@ -57,19 +68,23 @@ export default class WalletScreen extends Component {
 
   _renderMsg = () =>{
     const data = this.state.transaction
+    let values = data.value
+    if (values==0){
+
+    }
       return(
-        <View style={{padding:20}}>
+        <ScrollView style={{paddingHorizontal:20,marginTop:10,marginBottom:10}}>
             <View style={styles.listBox}>
                 <Text style={{width:80,fontSize:14,color:'#1c2562'}}>金额:</Text>
                 <Text style={styles.listRight}>{web3.utils.fromWei(data.value, 'ether')}</Text>
             </View>
             <View style={{borderBottomWidth:.4,borderColor:'#808080'}}></View>
             <View style={styles.listBox}>
-                <Text style={styles.listLeft}>旷工费用:</Text>
-                <View style={styles.listRight}>
+                <Text style={styles.listLeft}>矿工费用:</Text>
+                {this.state.gasUsed && <View style={styles.listRight}>
                     <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>{web3.utils.fromWei((this.state.gasUsed*data.gasPrice).toString(),'ether')}</Text>
                     <Text style={{fontSize:11,textAlign:'right',color:'#27337d',fontWeight:'100'}}>=Gas({this.state.gasUsed})*GasPrice({web3.utils.fromWei(data.gasPrice,'gwei')} gwei)</Text>
-                </View>
+                </View>}
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>收款地址:</Text>
@@ -89,7 +104,13 @@ export default class WalletScreen extends Component {
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>备注:</Text>
-                <Text style={styles.listRight}>{data.input}</Text>
+                <Text style={{flex:1,
+                        textAlign:'right',
+                        fontSize:11,
+                        color:"#27337d",
+                        fontWeight:'100',
+                        marginRight:30,
+                        height:30,overflow:'hidden'}}>{data.input}</Text>
             </View>
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>交易号:</Text>
@@ -105,17 +126,17 @@ export default class WalletScreen extends Component {
             <View style={styles.listBox}>
                 <Text style={styles.listLeft}>订单二维码:</Text>
                 <View style={styles.listRight}>
-                    <View style={{alignSelf:'flex-end',height:62,width:62,borderWidth:.3,borderColor:'#e1e1e1'}}>
-                      {/**<QRCode
-                            size={60}
-                            value={'222'}
-                            bgColor='#ffffff'
-                            fgColor='black'
-                        />**/}
+                    <View style={{alignSelf:'flex-end',height:100,width:100,borderWidth:.3,borderColor:'#e1e1e1'}}>
+                        <QRCode
+                            size={100}
+                            value={queryAddress+this.state.hash}
+                            fgColor='#ffffff'
+                            bgColor='black'
+                        />
                     </View>
                 </View>
             </View>
-        </View>
+        </ScrollView>
       )
   }
 
@@ -127,7 +148,7 @@ export default class WalletScreen extends Component {
       <ImageBackground
         source={require('../images/wallet-bg.png')}
         imageStyle={{width:width,height:320,marginTop:-74}}
-        style={{width:'100%',height:'100%',justifyContent:'center',backgroundColor:'rgb(245,243,251)'}}>
+        style={{width:'100%',height:'100%',backgroundColor:'rgb(245,243,251)',overflow:'scroll'}}>
         {this._renderBody()}
       </ImageBackground>
     )
@@ -140,6 +161,7 @@ const styles = StyleSheet.create({
       margin:10,
       borderRadius:5,
       height:'90%',
+      marginTop:'5%',
       overflow:'hidden'
   },
   boxHeader:{

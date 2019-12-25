@@ -1,7 +1,17 @@
 import tokens from './tokens'
 
+export function formatAddress(address) {
+  return address.substr(0,7)+'...'+address.substr(-7)
+}
+
 export function formatTime(timestamp) {
-  let date = new Date(parseInt(timestamp)*1000)
+  let date
+  if(parseInt(timestamp).toString().length==13){
+    date = new Date(parseInt(timestamp))
+  }
+  else{
+    date = new Date(parseInt(timestamp)*1000)
+  }
   return date.getFullYear() + '/' + (date.getMonth()+1) + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
 }
 
