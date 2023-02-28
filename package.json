@@ -24,7 +24,7 @@
     "process": "^0.11.10",
     "react": "16.4.1",
     "react-mixin": "^2.0.2",
-    "react-native": "0.56.0",
+    "react-native": "0.71.3",
     "react-native-background-fetch": "^2.4.6",
     "react-native-background-task": "^0.2.1",
     "react-native-camera": "^1.6.4",
